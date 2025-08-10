@@ -1,14 +1,12 @@
 import fs from 'fs';
-// import pdfParse from 'pdf-parse'; // Temporarily disabled
+import pdfParse from 'pdf-parse';
 import mammoth from 'mammoth';
 
 export async function parseFile(filePath, mimetype) {
   let text = '';
   if (mimetype === 'application/pdf') {
-    // Temporarily disabled PDF parsing
-    throw new Error('PDF parsing temporarily disabled');
-    // const data = await pdfParse(fs.readFileSync(filePath));
-    // text = data.text;
+    const data = await pdfParse(fs.readFileSync(filePath));
+    text = data.text;
   } else if (mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
     const data = await mammoth.extractRawText({ path: filePath });
     text = data.value;

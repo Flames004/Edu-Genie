@@ -101,4 +101,3 @@ Prerequisites:
 - Gemini API key
 - Render account (backend)
 - Vercel account (frontend)
-
