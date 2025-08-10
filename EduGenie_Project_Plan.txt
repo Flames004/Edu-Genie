@@ -1,0 +1,104 @@
+
+EduGenie Project Plan
+======================
+
+Project Overview:
+-----------------
+EduGenie is an AI-powered study assistant that helps students analyze, summarize, and extract insights from their study materials. It can process both text input and uploaded documents (PDF/DOCX). The project will be built with a Node.js backend, MongoDB database, and a modern frontend (React/Vite). The AI processing will be handled using the Gemini API.
+
+Core Features:
+--------------
+1. User Authentication & Authorization
+   - User registration & login
+   - JWT-based authentication
+   - Secure password hashing
+
+2. Text Analysis
+   - Input plain text and select a task type (summary, explanation, quiz creation, etc.)
+   - AI generates the result based on task type
+
+3. File Upload & Analysis
+   - Upload PDF or DOCX documents
+   - Extract text content
+   - Send text to Gemini API for analysis
+   - Store original file in backend for future reference
+
+4. Task Types
+   - Summarization
+   - Question generation
+   - Concept explanation
+   - Keyword extraction
+   - Study flashcard creation
+
+5. Document Management
+   - Store uploaded files in backend storage
+   - Keep file metadata in MongoDB
+   - Allow users to view, re-analyze, or delete uploaded documents
+
+6. Storage & Limits
+   - File size limit for uploads (e.g., 10MB for PDFs)
+   - Text length limit for direct input (e.g., 5,000 characters)
+   - Chunk large documents into smaller parts to bypass API limits
+
+7. AI Processing
+   - Integrate Gemini API for NLP tasks
+   - Handle both text and file content
+   - Automatic chunking of large files
+   - Combine responses for user
+
+8. Frontend Features
+   - Modern and responsive UI
+   - Dashboard with list of uploaded documents & results
+   - Input form for text analysis
+   - Upload form for file analysis
+   - Task type selector
+   - Display AI-generated output
+   - Pagination for long results
+
+9. Backend Features
+   - REST API endpoints for:
+       * User auth
+       * Text analysis
+       * File analysis
+       * Document management
+   - Multer for file uploads
+   - PDF/DOCX parsing
+   - MongoDB for storage
+   - Error handling & validation
+
+10. Deployment
+    - Backend on Render
+    - Frontend on Vercel
+    - Environment variables stored securely
+    - MongoDB Atlas cluster for database
+
+Processing Flow:
+----------------
+1. **Text Input Flow**
+   - User enters text + selects task
+   - Backend validates input
+   - Text sent to Gemini API
+   - AI result returned to frontend
+
+2. **File Upload Flow**
+   - User uploads document + selects task
+   - Backend stores file
+   - File parsed (PDF/DOCX)
+   - Text content extracted
+   - Text chunked if necessary
+   - Sent to Gemini API
+   - Combined AI result returned to frontend
+
+3. **Document Management Flow**
+   - User can view list of uploaded docs
+   - Select a doc to view analysis
+   - Option to delete file
+
+Prerequisites:
+--------------
+- Node.js & npm
+- MongoDB Atlas account & cluster
+- Gemini API key
+- Render account (backend)
+- Vercel account (frontend)
+
