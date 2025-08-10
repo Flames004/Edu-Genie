@@ -60,3 +60,5 @@ coverage/
 *.tgz
 *.bak
 *.tmp
+
+to_do.txt
