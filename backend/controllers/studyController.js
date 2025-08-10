@@ -161,7 +161,7 @@ async function analyzeSingleChunk(content, type, chunkNumber = 1, totalChunks = 
   }
 
   try {
-    const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + process.env.GEMINI_API_KEY;
+    const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + process.env.GEMINI_API_KEY;
     
     const response = await fetch(apiUrl, {
       method: "POST",
@@ -217,7 +217,7 @@ async function combineChunkResults(chunkResults, type) {
   }
 
   try {
-    const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + process.env.GEMINI_API_KEY;
+    const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + process.env.GEMINI_API_KEY;
     
     const response = await fetch(apiUrl, {
       method: "POST",
@@ -299,8 +299,8 @@ export const analyzeText = async (req, res) => {
       return res.status(400).json({ message: "Text is too short for meaningful analysis" });
     }
 
-    if (text.length > 5000) {
-      return res.status(400).json({ message: "Text is too long. Maximum 5000 characters allowed." });
+    if (text.length > 25000) {
+      return res.status(400).json({ message: "Text is too long. Maximum 25,000 characters allowed." });
     }
 
     const validTasks = ["summary", "explanation", "quiz", "keywords"];
