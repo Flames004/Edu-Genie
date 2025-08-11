@@ -32,6 +32,9 @@ const documentSchema = new mongoose.Schema({
   textLength: { 
     type: Number 
   },
+  estimatedPages: {
+    type: Number
+  },
   analyses: [{
     taskType: {
       type: String,

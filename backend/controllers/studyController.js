@@ -1,11 +1,20 @@
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import pdfParse from "pdf-parse";
 import multer from "multer";
 import { fileURLToPath } from "url";
 import fetch from "node-fetch";
 import mammoth from "mammoth";
 import Document from "../models/Document.js";
+
+// Security: File signature validation
+const FILE_SIGNATURES = {
+  'application/pdf': [0x25, 0x50, 0x44, 0x46], // %PDF
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [0x50, 0x4B], // PK
+  'application/msword': [0xD0, 0xCF, 0x11, 0xE0], // DOC signature
+  'text/plain': null // No signature required
+};
 
 // --- Multer setup for file uploads ---
 const __filename = fileURLToPath(import.meta.url);
@@ -16,12 +25,49 @@ if (!fs.existsSync(uploadFolder)) {
   fs.mkdirSync(uploadFolder);
 }
 
+// Security: Validate file signature against declared MIME type
+function validateFileSignature(filePath, mimeType) {
+  try {
+    const expectedSignature = FILE_SIGNATURES[mimeType];
+    if (!expectedSignature) return true; // No signature check for text files
+    
+    const buffer = fs.readFileSync(filePath, { start: 0, end: expectedSignature.length });
+    const fileSignature = Array.from(buffer);
+    
+    // Check if file signature matches expected
+    for (let i = 0; i < expectedSignature.length; i++) {
+      if (fileSignature[i] !== expectedSignature[i]) {
+        return false;
+      }
+    }
+    return true;
+  } catch (error) {
+    console.error('File signature validation error:', error);
+    return false;
+  }
+}
+
+// Security: Sanitize filename to prevent directory traversal
+function sanitizeFilename(originalName) {
+  // Remove/replace dangerous characters
+  const sanitized = originalName
+    .replace(/[^a-zA-Z0-9\-_.]/g, '_') // Replace special chars
+    .replace(/\.{2,}/g, '_')           // Replace multiple dots
+    .substring(0, 255);                // Limit length
+  
+  // Generate unique secure filename
+  const timestamp = Date.now();
+  const randomSuffix = crypto.randomBytes(8).toString('hex');
+  return `${timestamp}_${randomSuffix}_${sanitized}`;
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadFolder);
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
+    const secureFilename = sanitizeFilename(file.originalname);
+    cb(null, secureFilename);
   },
 });
 
@@ -104,17 +150,43 @@ function parseText(filePath) {
 
 // --- Enhanced Gemini analysis function ---
 async function analyzeWithGemini(content, type = "summary") {
-  // Check if content needs chunking
+  // Document length analysis and warnings
+  const documentLength = content.length;
+  const estimatedPages = Math.ceil(documentLength / 2500); // ~2500 chars per page
   const maxContentLength = 4000;
+  
+  // Warn about very long documents
+  if (documentLength > 100000) { // ~40+ pages
+    console.warn(`Processing large document: ${estimatedPages} pages, ${documentLength} characters`);
+  }
+
   let result = "";
 
   if (content.length > maxContentLength) {
+    // Adaptive chunking based on document size
+    let chunkSize = maxContentLength;
+    let maxChunks = 50; // Reasonable limit
+    
+    if (estimatedPages > 100) {
+      // For very long documents, use larger chunks and limit processing
+      chunkSize = 8000;
+      maxChunks = 25;
+      console.warn(`Large document detected: Using adaptive processing (${estimatedPages} pages)`);
+    }
+    
     // Chunk the content and analyze each chunk
-    const chunks = chunkText(content, maxContentLength);
+    const chunks = chunkText(content, chunkSize);
+    
+    // Limit chunks for very long documents
+    const chunksToProcess = chunks.slice(0, maxChunks);
+    if (chunks.length > maxChunks) {
+      console.warn(`Document too long: Processing first ${maxChunks} sections out of ${chunks.length}`);
+    }
+    
     const chunkResults = [];
 
-    for (let i = 0; i < chunks.length; i++) {
-      const chunkResult = await analyzeSingleChunk(chunks[i], type, i + 1, chunks.length);
+    for (let i = 0; i < chunksToProcess.length; i++) {
+      const chunkResult = await analyzeSingleChunk(chunksToProcess[i], type, i + 1, chunksToProcess.length);
       chunkResults.push(chunkResult);
     }
 
@@ -161,7 +233,7 @@ async function analyzeSingleChunk(content, type, chunkNumber = 1, totalChunks = 
   }
 
   try {
-    const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + process.env.GEMINI_API_KEY;
+    const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + process.env.GEMINI_API_KEY;
     
     const response = await fetch(apiUrl, {
       method: "POST",
@@ -217,7 +289,7 @@ async function combineChunkResults(chunkResults, type) {
   }
 
   try {
-    const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + process.env.GEMINI_API_KEY;
+    const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + process.env.GEMINI_API_KEY;
     
     const response = await fetch(apiUrl, {
       method: "POST",
@@ -491,6 +563,17 @@ export const analyzeFile = async (req, res) => {
         return res.status(400).json({ message: "Unsupported file type" });
       }
 
+      // Security: Validate file signature
+      const isValidSignature = validateFileSignature(filePath, req.file.mimetype);
+      if (!isValidSignature) {
+        fs.unlinkSync(filePath); // Clean up suspicious file
+        return res.status(400).json({ 
+          success: false,
+          error: "INVALID_FILE_SIGNATURE",
+          message: "File signature does not match declared type. Possible security threat." 
+        });
+      }
+
       if (!textContent || textContent.length < 10) {
         // Clean up the uploaded file
         fs.unlinkSync(filePath);
@@ -506,6 +589,10 @@ export const analyzeFile = async (req, res) => {
 
       // Save document to database if user is authenticated
       let document = null;
+      // Document length analysis for user feedback
+      const estimatedPages = Math.ceil(textContent.length / 2500);
+      const isLongDocument = textContent.length > 50000; // ~20+ pages
+      
       if (req.user) {
         document = new Document({
           userId: req.user._id,
@@ -516,6 +603,7 @@ export const analyzeFile = async (req, res) => {
           filePath: filePath,
           extractedText: textContent,
           textLength: textContent.length,
+          estimatedPages: estimatedPages,
           analyses: [{
             taskType: analysisTask,
             result: analysis.result,
@@ -536,18 +624,45 @@ export const analyzeFile = async (req, res) => {
           originalName: req.file.originalname,
           size: req.file.size,
           type: req.file.mimetype,
-          textLength: textContent.length
-        }
+          textLength: textContent.length,
+          estimatedPages: estimatedPages,
+          isLongDocument: isLongDocument
+        },
+        warnings: isLongDocument ? [
+          `Large document detected: ~${estimatedPages} pages`,
+          "Processing time may be longer for large documents",
+          textContent.length > 100000 ? "Only first sections were analyzed due to document size" : null
+        ].filter(Boolean) : []
       });
 
     } catch (parseError) {
-      // Clean up file if parsing fails
+      // Enhanced security: Clean up file immediately on any parsing error
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
+      
       console.error("File parsing error:", parseError);
+      
+      // Determine error type for better user feedback
+      let errorType = "PARSING_ERROR";
+      let userMessage = "Error processing file";
+      
+      if (parseError.message.includes('password')) {
+        errorType = "PASSWORD_PROTECTED";
+        userMessage = "PDF is password protected. Please provide password.";
+      } else if (parseError.message.includes('corrupt') || parseError.message.includes('invalid')) {
+        errorType = "CORRUPTED_FILE";
+        userMessage = "File appears to be corrupted or invalid.";
+      } else if (parseError.message.includes('signature')) {
+        errorType = "SECURITY_THREAT";
+        userMessage = "File failed security validation.";
+      }
+      
       return res.status(400).json({ 
-        message: "Error processing file: " + parseError.message 
+        success: false,
+        error: errorType,
+        message: userMessage,
+        details: process.env.NODE_ENV === 'development' ? parseError.message : undefined
       });
     }
 
