@@ -67,10 +67,4 @@ export const documentsApi = {
     const response = await apiClient.post(`/study/questions/${id}`, { customPrompt });
     return response.data;
   },
-
-  // Get recent documents
-  getRecent: async (): Promise<{ success: boolean; documents: Document[] }> => {
-    const response = await apiClient.get('/study/recent');
-    return response.data;
-  },
 };
