@@ -27,10 +27,10 @@ export interface RegisterCredentials {
 // Document types
 export interface Document {
   _id: string;
-  filename: string;
+  fileName: string;
   originalName: string;
   fileSize: number;
-  fileType: string;
+  mimeType: string;
   uploadDate: string;
   textContent: string;
   textLength: number;

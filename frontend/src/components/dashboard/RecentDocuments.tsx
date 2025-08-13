@@ -5,21 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, MoreHorizontal, Eye, Download } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-
-interface Document {
-  _id: string;
-  filename: string;
-  originalName: string;
-  fileSize: number;
-  fileType: string;
-  uploadDate: string;
-  textLength: number;
-  estimatedPages: number;
-  analyses: Array<{
-    type: string;
-    createdAt: string;
-  }>;
-}
+import { Document } from "@/types";
 
 interface RecentDocumentsProps {
   documents: Document[];
@@ -53,7 +39,9 @@ export default function RecentDocuments({
     return date.toLocaleDateString();
   };
 
-  const getFileTypeColor = (fileType: string) => {
+  const getFileTypeColor = (fileType: string | undefined) => {
+    if (!fileType) return "bg-purple-100 text-purple-800";
+    
     switch (fileType.toLowerCase()) {
       case "application/pdf":
         return "bg-red-100 text-red-800";
@@ -66,7 +54,9 @@ export default function RecentDocuments({
     }
   };
 
-  const getFileTypeLabel = (fileType: string) => {
+  const getFileTypeLabel = (fileType: string | undefined) => {
+    if (!fileType) return "FILE";
+    
     switch (fileType.toLowerCase()) {
       case "application/pdf":
         return "PDF";
@@ -151,9 +141,9 @@ export default function RecentDocuments({
                     </p>
                     <Badge 
                       variant="secondary" 
-                      className={getFileTypeColor(document.fileType)}
+                      className={getFileTypeColor(document.mimeType)}
                     >
-                      {getFileTypeLabel(document.fileType)}
+                      {getFileTypeLabel(document.mimeType)}
                     </Badge>
                   </div>
                   

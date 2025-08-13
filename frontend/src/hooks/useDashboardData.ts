@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { documentsApi } from "@/lib/api/documents";
+import { Document } from "@/types";
 
 interface DashboardData {
   stats: {
@@ -11,20 +12,7 @@ interface DashboardData {
       analyses: number;
     };
   };
-  recentDocuments: Array<{
-    _id: string;
-    filename: string;
-    originalName: string;
-    fileSize: number;
-    fileType: string;
-    uploadDate: string;
-    textLength: number;
-    estimatedPages: number;
-    analyses: Array<{
-      type: string;
-      createdAt: string;
-    }>;
-  }>;
+  recentDocuments: Document[];
 }
 
 export function useDashboardData() {

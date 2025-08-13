@@ -10,7 +10,7 @@ export const documentsApi = {
   // Upload a document
   upload: async (file: File): Promise<DocumentUploadResponse> => {
     const formData = new FormData();
-    formData.append('document', file);
+    formData.append('file', file);
     
     const response = await apiClient.post('/study/upload', formData, {
       headers: {
