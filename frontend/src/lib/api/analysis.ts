@@ -41,15 +41,27 @@ export const getAnalysisTypes = async (): Promise<AnalysisType[]> => {
 
 // Analyze text content
 export const analyzeText = async (data: AnalysisRequest): Promise<AnalysisResult> => {
-  const response = await apiClient.post('/study/text', data);
-  return response.data;
+  const requestBody = {
+    text: data.text,
+    task: data.type // Backend expects 'task' not 'type'
+  };
+  const response = await apiClient.post('/study/text', requestBody);
+  
+  // Map backend response to frontend format
+  return {
+    type: data.type,
+    result: response.data.analysis.result, // Extract the result field from analysis object
+    wordCount: response.data.textInfo?.wordCount || 0,
+    textLength: response.data.textInfo?.length || 0,
+    timestamp: new Date().toISOString()
+  };
 };
 
 // Analyze file
 export const analyzeFile = async (file: File, type: string): Promise<AnalysisResult> => {
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('type', type);
+  formData.append('task', type); // Backend expects 'task' not 'type'
   
   const response = await apiClient.post('/study/upload', formData, {
     headers: {
@@ -57,13 +69,30 @@ export const analyzeFile = async (file: File, type: string): Promise<AnalysisRes
     },
   });
   
-  return response.data;
+  // Map backend response to frontend format
+  return {
+    type: type,
+    result: response.data.analysis.result, // Extract the result field from analysis object
+    wordCount: Math.floor(response.data.fileInfo?.textLength / 5) || 0, // Estimate word count
+    textLength: response.data.fileInfo?.textLength || 0,
+    timestamp: new Date().toISOString()
+  };
 };
 
 // Re-analyze existing document
 export const reAnalyzeDocument = async (documentId: string, type: string): Promise<AnalysisResult> => {
-  const response = await apiClient.post(`/study/documents/${documentId}/analyze`, { type });
-  return response.data;
+  const response = await apiClient.post(`/study/documents/${documentId}/analyze`, { 
+    task: type // Backend expects 'task' not 'type'
+  });
+  
+  // Map backend response to frontend format
+  return {
+    type: type,
+    result: response.data.analysis.result, // Extract the result field from analysis object
+    wordCount: Math.floor(response.data.analysis.textLength / 5) || 0, // Estimate word count
+    textLength: response.data.analysis.textLength || 0,
+    timestamp: response.data.analysis.timestamp || new Date().toISOString()
+  };
 };
 
 // Parse quiz questions from analysis result
