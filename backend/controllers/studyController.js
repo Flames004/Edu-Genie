@@ -222,30 +222,32 @@ async function analyzeSingleChunk(content, type, chunkNumber = 1, totalChunks = 
     case "quiz":
       prompt = `${chunkPrefix}Based on the following content, generate 5-7 multiple choice questions to test understanding. 
 
-IMPORTANT: Format each question EXACTLY as shown below:
+CRITICAL: Follow this EXACT format for each question:
 
-Question 1: [Your question here]
-a) Option 1
-b) Option 2  
-c) Option 3
-d) Option 4
-**Correct Answer: b**
-Explanation: [Brief explanation why this answer is correct]
-
-Question 2: [Your question here]
-a) Option 1
-b) Option 2
-c) Option 3
-d) Option 4
+Question 1: What is the main concept discussed in the content?
+a) First option here
+b) Second option here
+c) Third option here
+d) Fourth option here
 **Correct Answer: c**
-Explanation: [Brief explanation why this answer is correct]
+Explanation: Brief explanation of why this answer is correct.
 
-CRITICAL FORMATTING RULES:
-- Number each question clearly as "Question 1:", "Question 2:", etc.
-- Use lowercase letters (a, b, c, d) followed by ) for options
-- Put "**Correct Answer: [letter]**" on its own line (with asterisks)
-- Provide a brief explanation for each correct answer
-- Only use options a, b, c, d (no more than 4 options per question)
+Question 2: Which statement best describes the key principle?
+a) First option here
+b) Second option here
+c) Third option here
+d) Fourth option here
+**Correct Answer: a**
+Explanation: Brief explanation of why this answer is correct.
+
+STRICT FORMATTING RULES:
+1. Start each question with "Question [NUMBER]:" followed by the question text
+2. Use lowercase letters a), b), c), d) for exactly 4 options
+3. Put "**Correct Answer: [letter]**" on its own line (wrapped in double asterisks)
+4. Add "Explanation:" followed by a brief reason
+5. Leave a blank line between each complete question
+6. Do NOT add any extra text, headers, or conclusions
+7. Ensure each question is complete with all 4 options and answer
 
 Content to analyze:
 ${content}`;

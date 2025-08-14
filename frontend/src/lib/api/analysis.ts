@@ -113,11 +113,30 @@ c) C++
 d) Java
 **Correct Answer: b**
 Explanation: JavaScript is primarily used for web development and runs in browsers.
+
+Question 3: What is the largest planet in our solar system?
+a) Earth
+b) Mars
+c) Jupiter
+d) Saturn
+**Correct Answer: c**
+Explanation: Jupiter is the largest planet in our solar system by both mass and volume.
 `;
   
-  console.log('Testing quiz parsing with sample data...');
+  console.log('Testing enhanced quiz parsing with sample data...');
   const questions = parseQuizQuestions(sampleQuiz);
   console.log('Parsed questions:', questions);
+  
+  // Validation check
+  questions.forEach((q, i) => {
+    console.log(`Question ${i + 1} validation:`, {
+      hasQuestion: q.question.length > 0,
+      hasOptions: q.options.length === 4,
+      validCorrectAnswer: q.correctAnswer >= 0 && q.correctAnswer < q.options.length,
+      correctOption: q.options[q.correctAnswer]
+    });
+  });
+  
   return questions;
 };
 
@@ -159,168 +178,183 @@ export const parseQuizQuestions = (quizText: string): QuizQuestion[] => {
   console.log('=== PARSING QUIZ TEXT ===');
   console.log('Raw text:', quizText);
   
-  // Try multiple splitting patterns
-  let questionBlocks: string[] = [];
+  // First, normalize the text and split into potential question blocks
+  const normalizedText = quizText
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .trim();
   
-  // Pattern 1: "Question 1:" or "1."
-  questionBlocks = quizText.split(/(?:\n|^)\s*(?:Question\s+\d+\s*:|\d+\s*\.)/i);
+  // Split by "Question X:" pattern - this is the most reliable delimiter
+  const questionBlocks = normalizedText.split(/(?:^|\n)\s*Question\s+(\d+)\s*:/i);
   
-  // If no matches, try simpler pattern
-  if (questionBlocks.length <= 1) {
-    questionBlocks = quizText.split(/(?:\n|^)\s*\d+[\.\)]/);
-  }
+  console.log('Question blocks found:', Math.floor(questionBlocks.length / 2));
   
-  // If still no matches, try even simpler
-  if (questionBlocks.length <= 1) {
-    questionBlocks = quizText.split(/\n\s*\n/); // Split by double newlines
-  }
-  
-  console.log('Question blocks found:', questionBlocks.length - 1);
-  
-  for (let i = 1; i < questionBlocks.length; i++) {
-    const block = questionBlocks[i].trim();
-    if (!block) continue;
+  // Process question blocks (skip first empty element)
+  for (let i = 1; i < questionBlocks.length; i += 2) {
+    const questionNumber = questionBlocks[i];
+    const questionContent = questionBlocks[i + 1];
     
-    console.log(`\n--- Processing Block ${i} ---`);
-    console.log('Block content:', block);
+    if (!questionContent) continue;
+    
+    console.log(`\n--- Processing Question ${questionNumber} ---`);
+    console.log('Raw content:', questionContent);
     
     try {
-      // More flexible question extraction
-      let questionText = '';
-      const options: string[] = [];
-      let correctAnswer = 0;
-      let explanation = '';
-      
-      // Split block into lines for easier processing
-      const lines = block.split('\n').map(line => line.trim()).filter(line => line);
-      
-      console.log('All lines in block:', lines);
-      
-      // Find question text (usually the first non-empty line)
-      let questionEnd = -1;
-      for (let j = 0; j < lines.length; j++) {
-        const line = lines[j];
-        // If line starts with a), b), c) etc, then previous lines are the question
-        if (/^[a-dA-D][\)\.]/.test(line)) {
-          questionEnd = j;
-          break;
-        }
-      }
-      
-      if (questionEnd > 0) {
-        questionText = lines.slice(0, questionEnd).join(' ').trim();
-      } else if (questionEnd === 0) {
-        // Edge case: question might be very short or missing
-        questionText = 'Question text not found';
+      const result = parseIndividualQuestion(questionContent.trim(), parseInt(questionNumber));
+      if (result) {
+        questions.push(result);
+        console.log(`✅ Successfully parsed Question ${questionNumber}`);
       } else {
-        // No options found, take first line as question
-        questionText = lines[0] || 'Unknown question';
+        console.log(`❌ Failed to parse Question ${questionNumber}`);
       }
-      
-      console.log('Extracted question:', questionText);
-      
-      // Extract options - be more specific to avoid picking up answer lines
-      for (const line of lines) {
-        // Skip lines that contain answer information or explanations
-        const lowerLine = line.toLowerCase();
-        if (lowerLine.includes('correct') || 
-            lowerLine.includes('answer') || 
-            lowerLine.includes('explanation') ||
-            lowerLine.includes('rationale') ||
-            lowerLine.startsWith('**') ||
-            lowerLine.startsWith('question')) {
-          console.log('Skipping line (contains answer/explanation):', line);
-          continue;
-        }
-        
-        // Match option pattern: starts with a), b), c), or d)
-        const optionMatch = line.match(/^([a-dA-D])[\)\.]?\s*(.+)$/);
-        if (optionMatch) {
-          const optionLetter = optionMatch[1].toLowerCase();
-          const optionText = optionMatch[2].trim();
-          
-          // Only accept options a, b, c, d (not e, f, etc.)
-          if (optionLetter >= 'a' && optionLetter <= 'd' && optionText.length > 0) {
-            options.push(optionText);
-            console.log(`Valid option ${optionMatch[1]}: ${optionText}`);
-          } else {
-            console.log('Rejected option (invalid letter or empty):', line);
-          }
-        }
-      }
-      
-      if (options.length < 2) {
-        console.warn('Not enough options found, skipping question');
-        continue;
-      }
-      
-      // Find correct answer with multiple patterns
-      const fullBlock = block.toLowerCase();
-      let correctAnswerLetter = '';
-      
-      // Pattern 1: "**correct answer: a**" or "correct answer: a"
-      let match = fullBlock.match(/\*\*\s*(?:correct\s*answer|answer)\s*[:\-]?\s*([a-d])\s*\*\*|(?:correct\s*answer|answer)\s*[:\-]?\s*([a-d])/);
-      if (match) {
-        correctAnswerLetter = match[1] || match[2];
-      }
-      
-      // Pattern 2: "the correct answer is a"
-      if (!correctAnswerLetter) {
-        match = fullBlock.match(/(?:the\s+)?(?:correct\s+)?answer\s+is\s+([a-d])/);
-        if (match) {
-          correctAnswerLetter = match[1];
-        }
-      }
-      
-      // Pattern 3: Look for any standalone letter after "correct" or "answer"
-      if (!correctAnswerLetter) {
-        match = fullBlock.match(/(?:correct|answer)[\s\S]*?([a-d])(?:\s|$|\)|\.)/);
-        if (match) {
-          correctAnswerLetter = match[1];
-        }
-      }
-      
-      if (correctAnswerLetter) {
-        correctAnswer = correctAnswerLetter.charCodeAt(0) - 'a'.charCodeAt(0);
-        console.log(`Found correct answer: ${correctAnswerLetter} (index ${correctAnswer})`);
-      } else {
-        console.warn('No correct answer found, defaulting to 0');
-        correctAnswer = 0;
-      }
-      
-      // Validate correct answer index
-      if (correctAnswer < 0 || correctAnswer >= options.length) {
-        console.warn(`Invalid correct answer index ${correctAnswer}, defaulting to 0`);
-        correctAnswer = 0;
-      }
-      
-      // Extract explanation
-      const explanationMatch = block.match(/(?:explanation|rationale|reason)[:\-]?\s*([^\n]*(?:\n(?![a-dA-D][\)\.]|Question|Correct Answer)[^\n]*)*)/i);
-      explanation = explanationMatch ? explanationMatch[1].trim() : '';
-      
-      console.log('Final parsed question:', {
-        question: questionText,
-        optionsCount: options.length,
-        correctAnswer,
-        correctOption: options[correctAnswer],
-        hasExplanation: !!explanation
-      });
-      
-      questions.push({
-        question: questionText,
-        options,
-        correctAnswer,
-        explanation: explanation || undefined
-      });
-      
     } catch (error) {
-      console.error('Error parsing quiz question:', error);
+      console.error(`Error parsing Question ${questionNumber}:`, error);
     }
+  }
+  
+  // If no "Question X:" pattern found, try fallback method
+  if (questions.length === 0) {
+    console.log('No "Question X:" pattern found, trying fallback parsing...');
+    return parseQuizQuestionsLegacy(quizText);
   }
   
   console.log(`=== PARSING COMPLETE: ${questions.length} questions parsed ===`);
   return questions;
 };
+
+// Parse individual question content
+function parseIndividualQuestion(content: string, questionNumber: number): QuizQuestion | null {
+  const lines = content.split('\n').map(line => line.trim()).filter(line => line);
+  
+  if (lines.length < 6) { // Minimum: question + 4 options + answer
+    console.log(`Question ${questionNumber}: Not enough lines (${lines.length})`);
+    return null;
+  }
+  
+  // Find where options start (first line starting with a), b), etc.)
+  let optionsStartIndex = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (/^[a-dA-D][\)\.]/.test(lines[i])) {
+      optionsStartIndex = i;
+      break;
+    }
+  }
+  
+  if (optionsStartIndex === -1) {
+    console.log(`Question ${questionNumber}: No options found`);
+    return null;
+  }
+  
+  // Extract question text (everything before options)
+  const questionText = lines
+    .slice(0, optionsStartIndex)
+    .join(' ')
+    .trim();
+  
+  if (!questionText) {
+    console.log(`Question ${questionNumber}: Empty question text`);
+    return null;
+  }
+  
+  // Extract exactly 4 options (a, b, c, d)
+  const options: string[] = [];
+  const expectedOptions = ['a', 'b', 'c', 'd'];
+  
+  for (let i = optionsStartIndex; i < lines.length && options.length < 4; i++) {
+    const line = lines[i];
+    const optionMatch = line.match(/^([a-dA-D])[\)\.]?\s*(.+)$/);
+    
+    if (optionMatch) {
+      const optionLetter = optionMatch[1].toLowerCase();
+      const optionText = optionMatch[2].trim();
+      
+      // Ensure options are in order (a, b, c, d)
+      if (optionLetter === expectedOptions[options.length] && optionText.length > 0) {
+        options.push(optionText);
+        console.log(`Option ${optionLetter}: ${optionText}`);
+      } else if (expectedOptions.includes(optionLetter)) {
+        console.log(`Warning: Option ${optionLetter} out of order or duplicate`);
+        break; // Stop parsing if options are out of order
+      }
+    } else if (options.length > 0) {
+      // If we've started collecting options and hit a non-option line, stop
+      break;
+    }
+  }
+  
+  if (options.length !== 4) {
+    console.log(`Question ${questionNumber}: Expected 4 options, found ${options.length}`);
+    return null;
+  }
+  
+  // Find correct answer in the remaining content after options
+  const remainingContent = lines.slice(optionsStartIndex + 4).join(' ').toLowerCase();
+  let correctAnswer = 0;
+  
+  // Look for correct answer patterns
+  const answerPatterns = [
+    /\*\*\s*(?:correct\s*answer|answer)\s*[:\-]?\s*([a-d])\s*\*\*/,
+    /(?:correct\s*answer|answer)\s*[:\-]?\s*([a-d])/,
+    /(?:the\s+)?(?:correct\s+)?answer\s+is\s+([a-d])/,
+    /answer\s*:\s*([a-d])/
+  ];
+  
+  for (const pattern of answerPatterns) {
+    const match = remainingContent.match(pattern);
+    if (match) {
+      const answerLetter = match[1];
+      correctAnswer = answerLetter.charCodeAt(0) - 'a'.charCodeAt(0);
+      console.log(`Found correct answer: ${answerLetter} (index ${correctAnswer})`);
+      break;
+    }
+  }
+  
+  // Validate correct answer
+  if (correctAnswer < 0 || correctAnswer >= options.length) {
+    console.log(`Question ${questionNumber}: Invalid correct answer ${correctAnswer}, defaulting to 0`);
+    correctAnswer = 0;
+  }
+  
+  // Extract explanation
+  const explanationMatch = remainingContent.match(/(?:explanation|rationale)[:\-]?\s*(.+?)(?:\n|$)/i);
+  const explanation = explanationMatch ? explanationMatch[1].trim() : undefined;
+  
+  return {
+    question: questionText,
+    options,
+    correctAnswer,
+    explanation
+  };
+}
+
+// Legacy parsing method as fallback
+function parseQuizQuestionsLegacy(quizText: string): QuizQuestion[] {
+  const questions: QuizQuestion[] = [];
+  
+  // Try splitting by numbered patterns
+  let questionBlocks = quizText.split(/(?:\n|^)\s*(\d+)[\.\)]/);
+  
+  if (questionBlocks.length <= 1) {
+    // Try splitting by double newlines
+    questionBlocks = quizText.split(/\n\s*\n/);
+  }
+  
+  for (let i = 1; i < questionBlocks.length; i++) {
+    const block = questionBlocks[i].trim();
+    if (!block || block.length < 20) continue; // Skip very short blocks
+    
+    try {
+      const result = parseIndividualQuestion(block, i);
+      if (result) {
+        questions.push(result);
+      }
+    } catch (error) {
+      console.warn('Error in legacy parsing:', error);
+    }
+  }
+  
+  return questions;
+}
 
 // Parse flashcards from analysis result
 export const parseFlashcards = (flashcardText: string): FlashCard[] => {

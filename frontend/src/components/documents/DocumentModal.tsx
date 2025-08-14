@@ -4,7 +4,6 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -105,16 +104,14 @@ export default function DocumentModal({
             <div className="text-2xl">{getFileTypeIcon(document.mimeType)}</div>
             <div className="flex-1 min-w-0">
               <DialogTitle className="truncate">{document.originalName}</DialogTitle>
-              <DialogDescription>
-                <div className="flex items-center space-x-2 mt-1">
-                  <Badge className={`${fileTypeBadge.color} text-xs`}>
-                    {fileTypeBadge.label}
-                  </Badge>
-                  <span>{formatFileSize(document.fileSize)}</span>
-                  <span>•</span>
-                  <span>{formatDate(document.uploadDate)}</span>
-                </div>
-              </DialogDescription>
+              <div className="flex items-center space-x-2 mt-1">
+                <Badge className={`${fileTypeBadge.color} text-xs`}>
+                  {fileTypeBadge.label}
+                </Badge>
+                <span className="text-sm text-muted-foreground">{formatFileSize(document.fileSize)}</span>
+                <span className="text-sm text-muted-foreground">•</span>
+                <span className="text-sm text-muted-foreground">{formatDate(document.uploadDate)}</span>
+              </div>
             </div>
           </div>
         </DialogHeader>
