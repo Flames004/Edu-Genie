@@ -41,9 +41,9 @@ export interface Document {
 
 export interface Analysis {
   _id: string;
-  type: 'summary' | 'quiz' | 'flashcards' | 'questions' | 'analysis';
-  content: string;
-  createdAt: string;
+  taskType: 'summary' | 'explanation' | 'quiz' | 'keywords';
+  result: string;
+  timestamp: string;
 }
 
 export interface DocumentUploadResponse {
@@ -67,7 +67,7 @@ export interface ApiError {
 
 // Form types
 export interface DocumentAnalysisRequest {
-  type: Analysis['type'];
+  type: Analysis['taskType'];
   customPrompt?: string;
 }
 

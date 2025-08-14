@@ -242,16 +242,16 @@ export default function DocumentModal({
                     <Card key={analysis._id}>
                       <CardHeader>
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg capitalize">{analysis.type}</CardTitle>
+                          <CardTitle className="text-lg capitalize">{analysis.taskType}</CardTitle>
                           <div className="flex items-center space-x-2 text-sm text-gray-500">
                             <Calendar className="h-4 w-4" />
-                            <span>{formatDate(analysis.createdAt)}</span>
+                            <span>{formatDate(analysis.timestamp)}</span>
                           </div>
                         </div>
                       </CardHeader>
                       <CardContent>
                         <div className="text-sm text-gray-700 whitespace-pre-wrap">
-                          {analysis.content || "No content available"}
+                          {analysis.result || "No content available"}
                         </div>
                       </CardContent>
                     </Card>

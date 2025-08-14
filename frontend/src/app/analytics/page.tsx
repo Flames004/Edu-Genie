@@ -19,13 +19,37 @@ export default function AnalyticsPage() {
     ? (totalAnalyses / data.stats.documents).toFixed(1)
     : "0";
 
-  // Get analysis type breakdown
+  // Get analysis type breakdown with better display names
   const analysisBreakdown = data?.recentDocuments.reduce((acc: Record<string, number>, doc) => {
     doc.analyses?.forEach(analysis => {
-      acc[analysis.type] = (acc[analysis.type] || 0) + 1;
+      const analysisType = analysis.taskType || 'unknown';
+      acc[analysisType] = (acc[analysisType] || 0) + 1;
     });
     return acc;
   }, {}) || {};
+
+  // Map analysis types to display names and colors
+  const getAnalysisDisplayName = (type: string) => {
+    const typeMap: Record<string, string> = {
+      'summary': 'Summaries',
+      'explanation': 'Explanations', 
+      'quiz': 'Quizzes',
+      'keywords': 'Keywords',
+      'unknown': 'Other'
+    };
+    return typeMap[type] || type;
+  };
+
+  const getAnalysisColor = (type: string) => {
+    const colorMap: Record<string, string> = {
+      'summary': 'bg-blue-500',
+      'explanation': 'bg-green-500',
+      'quiz': 'bg-purple-500', 
+      'keywords': 'bg-orange-500',
+      'unknown': 'bg-gray-500'
+    };
+    return colorMap[type] || 'bg-gray-500';
+  };
 
   if (isLoading) {
     return (
@@ -156,8 +180,8 @@ export default function AnalyticsPage() {
                     {Object.entries(analysisBreakdown).map(([type, count]) => (
                       <div key={type} className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
-                          <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                          <span className="text-sm font-medium capitalize">{type}</span>
+                          <div className={`w-3 h-3 rounded-full ${getAnalysisColor(type)}`}></div>
+                          <span className="text-sm font-medium">{getAnalysisDisplayName(type)}</span>
                         </div>
                         <span className="text-sm text-muted-foreground">{count}</span>
                       </div>

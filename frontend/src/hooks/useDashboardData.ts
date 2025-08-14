@@ -64,7 +64,7 @@ export function useDashboardData() {
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
         const recentAnalyses = doc.analyses?.filter(analysis => {
-          const analysisDate = new Date(analysis.createdAt);
+          const analysisDate = new Date(analysis.timestamp);
           return analysisDate > weekAgo;
         }).length || 0;
         return total + recentAnalyses;
