@@ -3,7 +3,7 @@
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3, TrendingUp, BookOpen, Brain, FileText } from "lucide-react";
+import { BarChart3, TrendingUp, BookOpen, Brain, FileText, Trophy } from "lucide-react";
 import { useDashboardData } from "@/hooks/useDashboardData";
 
 export default function AnalyticsPage() {
@@ -101,6 +101,21 @@ export default function AnalyticsPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Quiz Average</CardTitle>
+                <Trophy className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {data?.stats.quizzes.total > 0 ? `${data?.stats.quizzes.averageScore}%` : 'N/A'}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {data?.stats.quizzes.total || 0} quizzes taken
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Avg Analyses/Doc</CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -154,6 +169,56 @@ export default function AnalyticsPage() {
                       <Brain className="h-8 w-8 mx-auto mb-2" />
                       <p className="text-sm">No analyses yet</p>
                       <p className="text-xs">Start analyzing documents to see breakdown</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Quiz Performance Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quiz Performance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {data?.stats.quizzes.total > 0 ? (
+                  <div className="space-y-4">
+                    <div className="grid gap-4 md:grid-cols-3">
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <Trophy className="h-4 w-4 text-yellow-500" />
+                          <span className="text-sm font-medium">Best Score</span>
+                        </div>
+                        <div className="text-2xl font-bold text-green-600">
+                          {data?.stats.quizzes.bestScore}%
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <TrendingUp className="h-4 w-4 text-blue-500" />
+                          <span className="text-sm font-medium">Average Score</span>
+                        </div>
+                        <div className="text-2xl font-bold">
+                          {data?.stats.quizzes.averageScore}%
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <BarChart3 className="h-4 w-4 text-purple-500" />
+                          <span className="text-sm font-medium">Total Quizzes</span>
+                        </div>
+                        <div className="text-2xl font-bold">
+                          {data?.stats.quizzes.total}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-32 text-muted-foreground">
+                    <div className="text-center">
+                      <Trophy className="h-8 w-8 mx-auto mb-2" />
+                      <p className="text-sm">No quiz results yet</p>
+                      <p className="text-xs">Complete some quizzes to see your performance</p>
                     </div>
                   </div>
                 )}

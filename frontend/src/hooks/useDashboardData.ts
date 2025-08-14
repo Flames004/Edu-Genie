@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { documentsApi } from "@/lib/api/documents";
+import { getQuizResults } from "@/lib/api/analysis";
 import { Document } from "@/types";
 
 interface DashboardData {
@@ -7,6 +8,11 @@ interface DashboardData {
     documents: number;
     analyses: number;
     studyTime: number;
+    quizzes: {
+      total: number;
+      averageScore: number;
+      bestScore: number;
+    };
     thisWeek: {
       documents: number;
       analyses: number;
@@ -28,11 +34,25 @@ export function useDashboardData() {
     },
   });
 
+  const {
+    data: quizData,
+    isLoading: quizLoading,
+    error: quizError,
+  } = useQuery({
+    queryKey: ["quiz-results"],
+    queryFn: getQuizResults,
+  });
+
   // Calculate stats from documents
   const stats = {
     documents: documents?.length || 0,
     analyses: documents?.reduce((total, doc) => total + (doc.analyses?.length || 0), 0) || 0,
     studyTime: 0, // TODO: Implement study time tracking
+    quizzes: {
+      total: quizData?.stats.totalQuizzes || 0,
+      averageScore: quizData?.stats.averageScore || 0,
+      bestScore: quizData?.stats.bestScore || 0,
+    },
     thisWeek: {
       documents: documents?.filter(doc => {
         const uploadDate = new Date(doc.uploadDate);
@@ -64,8 +84,8 @@ export function useDashboardData() {
 
   return {
     data: dashboardData,
-    isLoading: documentsLoading,
-    error: documentsError,
+    isLoading: documentsLoading || quizLoading,
+    error: documentsError || quizError,
     refetch: () => {
       // TODO: Implement refetch for documents query
     },

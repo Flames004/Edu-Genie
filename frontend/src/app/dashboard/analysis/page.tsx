@@ -27,7 +27,7 @@ export default function AnalysisPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('form')
-  const [analysisResults, setAnalysisResults] = useState<AnalysisResult | null>(null)
+  const [analysisResults, setAnalysisResults] = useState<(AnalysisResult & { documentId?: string }) | null>(null)
   const [analysisType, setAnalysisType] = useState(searchParams.get('type') || 'summary')
 
   // Fetch available analysis types
@@ -43,7 +43,7 @@ export default function AnalysisPage() {
     }
   }, [searchParams, analysisTypes])
 
-  const handleAnalysisComplete = (results: AnalysisResult) => {
+  const handleAnalysisComplete = (results: AnalysisResult & { documentId?: string }) => {
     setAnalysisResults(results)
     
     // Navigate to appropriate results tab based on analysis type
@@ -162,6 +162,7 @@ export default function AnalysisPage() {
             <QuizInterface
               quizData={analysisResults}
               onRestart={() => setActiveTab('form')}
+              documentId={analysisResults.documentId}
             />
           )}
         </TabsContent>

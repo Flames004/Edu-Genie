@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import fetch from "node-fetch";
 import mammoth from "mammoth";
 import Document from "../models/Document.js";
+import QuizResult from "../models/QuizResult.js";
 
 // Security: File signature validation
 const FILE_SIGNATURES = {
@@ -219,7 +220,35 @@ async function analyzeSingleChunk(content, type, chunkNumber = 1, totalChunks = 
       prompt = `${chunkPrefix}Please explain the following content in simple, easy-to-understand terms. Break down complex concepts and provide clear explanations:\n\n${content}`;
       break;
     case "quiz":
-      prompt = `${chunkPrefix}Based on the following content, generate 5-7 multiple choice questions to test understanding. Include the correct answers and explanations:\n\n${content}`;
+      prompt = `${chunkPrefix}Based on the following content, generate 5-7 multiple choice questions to test understanding. 
+
+IMPORTANT: Format each question EXACTLY as shown below:
+
+Question 1: [Your question here]
+a) Option 1
+b) Option 2  
+c) Option 3
+d) Option 4
+**Correct Answer: b**
+Explanation: [Brief explanation why this answer is correct]
+
+Question 2: [Your question here]
+a) Option 1
+b) Option 2
+c) Option 3
+d) Option 4
+**Correct Answer: c**
+Explanation: [Brief explanation why this answer is correct]
+
+CRITICAL FORMATTING RULES:
+- Number each question clearly as "Question 1:", "Question 2:", etc.
+- Use lowercase letters (a, b, c, d) followed by ) for options
+- Put "**Correct Answer: [letter]**" on its own line (with asterisks)
+- Provide a brief explanation for each correct answer
+- Only use options a, b, c, d (no more than 4 options per question)
+
+Content to analyze:
+${content}`;
       break;
     case "keywords":
       prompt = `${chunkPrefix}Extract the most important keywords and key phrases from the following content. Organize them by relevance and importance:\n\n${content}`;
@@ -669,5 +698,114 @@ export const analyzeFile = async (req, res) => {
   } catch (err) {
     console.error("File analysis error:", err);
     res.status(500).json({ message: "Error analyzing file: " + err.message });
+  }
+};
+
+// --- Save quiz result ---
+export const saveQuizResult = async (req, res) => {
+  try {
+    const { documentId, score, timeSpent, answers } = req.body;
+    
+    // Validate required fields
+    if (!documentId || !score || !timeSpent || !answers) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Missing required fields: documentId, score, timeSpent, answers" 
+      });
+    }
+
+    // Validate document belongs to user
+    const document = await Document.findOne({ 
+      _id: documentId, 
+      userId: req.user._id 
+    });
+    
+    if (!document) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Document not found" 
+      });
+    }
+
+    // Create quiz result
+    const quizResult = new QuizResult({
+      userId: req.user._id,
+      documentId,
+      score: {
+        correct: score.correct,
+        total: score.total,
+        percentage: score.percentage
+      },
+      timeSpent,
+      answers
+    });
+
+    await quizResult.save();
+
+    res.json({
+      success: true,
+      message: "Quiz result saved successfully",
+      quizResult: {
+        id: quizResult._id,
+        score: quizResult.score,
+        timeSpent: quizResult.timeSpent,
+        completedAt: quizResult.completedAt
+      }
+    });
+
+  } catch (err) {
+    console.error("Save quiz result error:", err);
+    res.status(500).json({ 
+      success: false, 
+      message: "Error saving quiz result: " + err.message 
+    });
+  }
+};
+
+// --- Get user's quiz results ---
+export const getQuizResults = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const quizResults = await QuizResult.find({ userId: req.user._id })
+      .populate('documentId', 'originalName fileName')
+      .sort({ completedAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await QuizResult.countDocuments({ userId: req.user._id });
+
+    // Calculate overall stats
+    const allResults = await QuizResult.find({ userId: req.user._id });
+    const stats = {
+      totalQuizzes: allResults.length,
+      averageScore: allResults.length > 0 
+        ? Math.round(allResults.reduce((sum, result) => sum + result.score.percentage, 0) / allResults.length)
+        : 0,
+      totalTimeSpent: allResults.reduce((sum, result) => sum + result.timeSpent, 0),
+      bestScore: allResults.length > 0 
+        ? Math.max(...allResults.map(result => result.score.percentage))
+        : 0
+    };
+
+    res.json({
+      success: true,
+      quizResults,
+      stats,
+      pagination: {
+        current: page,
+        total: Math.ceil(total / limit),
+        count: total
+      }
+    });
+
+  } catch (err) {
+    console.error("Get quiz results error:", err);
+    res.status(500).json({ 
+      success: false, 
+      message: "Error fetching quiz results: " + err.message 
+    });
   }
 };

@@ -7,7 +7,9 @@ import {
   getUserDocuments,
   getDocument,
   reAnalyzeDocument,
-  deleteDocument
+  deleteDocument,
+  saveQuizResult,
+  getQuizResults
 } from '../controllers/studyController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -25,6 +27,10 @@ router.get('/documents', protect, getUserDocuments);
 router.get('/documents/:id', protect, getDocument);
 router.post('/documents/:id/analyze', protect, reAnalyzeDocument);
 router.delete('/documents/:id', protect, deleteDocument);
+
+// Quiz result routes
+router.post('/quiz-results', protect, saveQuizResult);
+router.get('/quiz-results', protect, getQuizResults);
 
 // Test routes (temporary - remove in production)
 router.post('/test/text', analyzeText);

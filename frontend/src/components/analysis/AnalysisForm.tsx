@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils'
 
 interface AnalysisFormProps {
   analysisType: string
-  onAnalysisComplete: (results: AnalysisResult) => void
+  onAnalysisComplete: (results: AnalysisResult & { documentId?: string }) => void
 }
 
 export function AnalysisForm({ analysisType, onAnalysisComplete }: AnalysisFormProps) {
@@ -74,8 +74,8 @@ export function AnalysisForm({ analysisType, onAnalysisComplete }: AnalysisFormP
   const documentMutation = useMutation({
     mutationFn: (data: { documentId: string; type: string }) => 
       reAnalyzeDocument(data.documentId, data.type),
-    onSuccess: (data) => {
-      onAnalysisComplete(data)
+    onSuccess: (data, variables) => {
+      onAnalysisComplete({ ...data, documentId: variables.documentId })
       toast.success("Analysis Complete", {
         description: "Your document has been re-analyzed successfully.",
       })

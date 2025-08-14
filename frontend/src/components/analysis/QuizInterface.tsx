@@ -16,13 +16,14 @@ import {
   ArrowRight,
   ArrowLeft
 } from 'lucide-react'
-import { AnalysisResult, parseQuizQuestions, QuizQuestion } from '@/lib/api/analysis'
+import { AnalysisResult, parseQuizQuestions, QuizQuestion, saveQuizResult, QuizResultData, debugQuizParsing } from '@/lib/api/analysis'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
 interface QuizInterfaceProps {
   quizData: AnalysisResult
   onRestart: () => void
+  documentId?: string
 }
 
 interface QuizState {
@@ -33,7 +34,7 @@ interface QuizState {
   endTime?: Date
 }
 
-export function QuizInterface({ quizData, onRestart }: QuizInterfaceProps) {
+export function QuizInterface({ quizData, onRestart, documentId }: QuizInterfaceProps) {
   const [questions, setQuestions] = useState<QuizQuestion[]>([])
   const [quizState, setQuizState] = useState<QuizState>({
     currentQuestion: 0,
@@ -45,9 +46,24 @@ export function QuizInterface({ quizData, onRestart }: QuizInterfaceProps) {
   useEffect(() => {
     const parsedQuestions = parseQuizQuestions(quizData.result)
     if (parsedQuestions.length === 0) {
+      // Debug the parsing if no questions found
+      debugQuizParsing(quizData.result)
       toast.error("No quiz questions could be parsed from the analysis")
       return
     }
+    
+    // Log parsed questions for debugging
+    console.log('Parsed quiz questions:', parsedQuestions)
+    
+    // Validate correct answers
+    parsedQuestions.forEach((q, index) => {
+      if (q.correctAnswer < 0 || q.correctAnswer >= q.options.length) {
+        console.error(`Question ${index + 1}: Invalid correct answer index ${q.correctAnswer} for ${q.options.length} options`)
+      } else {
+        console.log(`Question ${index + 1}: Correct answer is "${q.options[q.correctAnswer]}" (index ${q.correctAnswer})`)
+      }
+    })
+    
     setQuestions(parsedQuestions)
     setQuizState(prev => ({
       ...prev,
@@ -68,11 +84,41 @@ export function QuizInterface({ quizData, onRestart }: QuizInterfaceProps) {
       setQuizState(prev => ({ ...prev, currentQuestion: prev.currentQuestion + 1 }))
     } else {
       // Finish quiz
+      const endTime = new Date()
       setQuizState(prev => ({
         ...prev,
         showResults: true,
-        endTime: new Date()
+        endTime
       }))
+      
+      // Save quiz result to backend if documentId is available
+      if (documentId) {
+        const score = calculateScore()
+        const timeSpent = Math.round((endTime.getTime() - quizState.startTime.getTime()) / 1000)
+        
+        const answers = questions.map((question, index) => ({
+          questionIndex: index,
+          selectedAnswer: quizState.answers[index] ?? -1,
+          correctAnswer: question.correctAnswer,
+          isCorrect: quizState.answers[index] === question.correctAnswer
+        }))
+
+        const quizResultData: QuizResultData = {
+          documentId,
+          score,
+          timeSpent,
+          answers
+        }
+
+        saveQuizResult(quizResultData)
+          .then(() => {
+            toast.success("Quiz result saved!")
+          })
+          .catch((error) => {
+            console.warn("Failed to save quiz result:", error)
+            // Don't show error to user as this is not critical
+          })
+      }
     }
   }
 
