@@ -47,7 +47,7 @@ export default function QuickActions() {
       icon: Upload,
       title: "Upload Document",
       description: "Add a new PDF, DOCX, or TXT file",
-      action: () => router.push("/dashboard/upload"),
+      action: () => router.push("/documents?tab=upload"),
       variant: "primary" as const,
     },
     {

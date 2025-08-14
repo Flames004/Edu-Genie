@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import FileUpload from "@/components/upload/FileUpload";
@@ -16,9 +17,14 @@ import { toast } from "sonner";
 import { Document } from "@/types";
 
 export default function DocumentsPage() {
+  const searchParams = useSearchParams();
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("library");
+  
+  // Set initial tab based on URL parameter
+  const initialTab = searchParams.get("tab") === "upload" ? "upload" : "library";
+  const [activeTab, setActiveTab] = useState(initialTab);
+  
   const { data, isLoading } = useDashboardData();
   const queryClient = useQueryClient();
 
