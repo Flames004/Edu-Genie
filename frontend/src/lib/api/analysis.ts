@@ -360,37 +360,69 @@ function parseQuizQuestionsLegacy(quizText: string): QuizQuestion[] {
 export const parseFlashcards = (flashcardText: string): FlashCard[] => {
   const flashcards: FlashCard[] = [];
   
-  // Split by card numbers or patterns
-  const cardBlocks = flashcardText.split(/\n\s*(?:\d+\.|\*\*Card \d+|\*\*\d+\.)/i);
-  
-  for (let i = 1; i < cardBlocks.length; i++) {
-    const block = cardBlocks[i].trim();
-    if (!block) continue;
+  try {
+    // First, try parsing the new structured format from backend
+    // Format: Card X:\nFront: question\nBack: answer
+    const structuredCardRegex = /Card\s+\d+:\s*\n\s*Front:\s*([^\n]+)\s*\n\s*Back:\s*((?:[^\n]+(?:\n(?!Card\s+\d+:)[^\n]*)*)?)/gi;
     
-    try {
-      // Look for front/back patterns
-      const frontBackMatch = block.match(/(?:front|question|term)[:\-]?\s*([^\n]*(?:\n(?!(?:back|answer|definition))[^\n]*)*)\s*(?:back|answer|definition)[:\-]?\s*([^\n]*(?:\n.*)*)/i);
+    let match;
+    while ((match = structuredCardRegex.exec(flashcardText)) !== null) {
+      const front = match[1]?.trim();
+      const back = match[2]?.trim();
       
-      if (frontBackMatch) {
+      if (front && back) {
         flashcards.push({
-          front: frontBackMatch[1].trim(),
-          back: frontBackMatch[2].trim()
+          front: front,
+          back: back
         });
-      } else {
-        // Try to split by newlines and take first line as front, rest as back
-        const lines = block.split('\n').filter(line => line.trim());
-        if (lines.length >= 2) {
-          flashcards.push({
-            front: lines[0].trim(),
-            back: lines.slice(1).join(' ').trim()
-          });
-        }
       }
-    } catch (error) {
-      console.warn('Error parsing flashcard:', error);
     }
+    
+    // If structured parsing succeeded, return the results
+    if (flashcards.length > 0) {
+      console.log(`Successfully parsed ${flashcards.length} flashcards using structured format`);
+      return flashcards;
+    }
+    
+    // Fallback to legacy parsing for backward compatibility
+    console.log('Structured parsing found no cards, trying legacy parsing...');
+    
+    // Split by card numbers or patterns
+    const cardBlocks = flashcardText.split(/\n\s*(?:\d+\.|\*\*Card \d+|\*\*\d+\.)/i);
+    
+    for (let i = 1; i < cardBlocks.length; i++) {
+      const block = cardBlocks[i].trim();
+      if (!block) continue;
+      
+      try {
+        // Look for front/back patterns
+        const frontBackMatch = block.match(/(?:front|question|term)[:\-]?\s*([^\n]*(?:\n(?!(?:back|answer|definition))[^\n]*)*)\s*(?:back|answer|definition)[:\-]?\s*([^\n]*(?:\n.*)*)/i);
+        
+        if (frontBackMatch) {
+          flashcards.push({
+            front: frontBackMatch[1].trim(),
+            back: frontBackMatch[2].trim()
+          });
+        } else {
+          // Try to split by newlines and take first line as front, rest as back
+          const lines = block.split('\n').filter(line => line.trim());
+          if (lines.length >= 2) {
+            flashcards.push({
+              front: lines[0].trim(),
+              back: lines.slice(1).join(' ').trim()
+            });
+          }
+        }
+      } catch (error) {
+        console.warn('Error parsing flashcard block:', error);
+      }
+    }
+    
+  } catch (error) {
+    console.error('Error in flashcard parsing:', error);
   }
   
+  console.log(`Final flashcard count: ${flashcards.length}`);
   return flashcards;
 };
 

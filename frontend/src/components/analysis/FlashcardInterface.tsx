@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -15,7 +15,10 @@ import {
   Shuffle,
   CheckCircle,
   XCircle,
-  Brain
+  Brain,
+  Clock,
+  Target,
+  Download
 } from 'lucide-react'
 import { AnalysisResult, parseFlashcards, FlashCard } from '@/lib/api/analysis'
 import { toast } from 'sonner'
@@ -32,6 +35,8 @@ interface StudySession {
   masteredCards: Set<number>
   difficultCards: Set<number>
   shuffled: boolean
+  startTime: Date
+  studyMode: 'sequential' | 'shuffle' | 'difficult'
 }
 
 export function FlashcardInterface({ flashcardData, onRestart }: FlashcardInterfaceProps) {
@@ -42,24 +47,23 @@ export function FlashcardInterface({ flashcardData, onRestart }: FlashcardInterf
     showBack: false,
     masteredCards: new Set(),
     difficultCards: new Set(),
-    shuffled: false
+    shuffled: false,
+    startTime: new Date(),
+    studyMode: 'sequential'
   })
+  const [studyTime, setStudyTime] = useState(0)
 
-  useEffect(() => {
-    const parsedCards = parseFlashcards(flashcardData.result)
-    if (parsedCards.length === 0) {
-      toast.error("No flashcards could be parsed from the analysis")
-      return
-    }
-    setFlashcards(parsedCards)
-    setOriginalOrder(parsedCards)
-  }, [flashcardData.result])
-
-  const handleFlip = () => {
-    setSession(prev => ({ ...prev, showBack: !prev.showBack }))
+  const formatStudyTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
-  const handleNext = () => {
+  const handleFlip = useCallback(() => {
+    setSession(prev => ({ ...prev, showBack: !prev.showBack }))
+  }, [])
+
+  const handleNext = useCallback(() => {
     if (session.currentCard < flashcards.length - 1) {
       setSession(prev => ({
         ...prev,
@@ -69,9 +73,9 @@ export function FlashcardInterface({ flashcardData, onRestart }: FlashcardInterf
     } else {
       setSession(prev => ({ ...prev, currentCard: 0, showBack: false }))
     }
-  }
+  }, [session.currentCard, flashcards.length])
 
-  const handlePrevious = () => {
+  const handlePrevious = useCallback(() => {
     if (session.currentCard > 0) {
       setSession(prev => ({
         ...prev,
@@ -85,9 +89,9 @@ export function FlashcardInterface({ flashcardData, onRestart }: FlashcardInterf
         showBack: false 
       }))
     }
-  }
+  }, [session.currentCard, flashcards.length])
 
-  const handleMastered = () => {
+  const handleMastered = useCallback(() => {
     setSession(prev => {
       const newMastered = new Set(prev.masteredCards)
       const newDifficult = new Set(prev.difficultCards)
@@ -104,9 +108,9 @@ export function FlashcardInterface({ flashcardData, onRestart }: FlashcardInterf
     
     toast.success("Card marked as mastered!")
     handleNext()
-  }
+  }, [handleNext])
 
-  const handleDifficult = () => {
+  const handleDifficult = useCallback(() => {
     setSession(prev => {
       const newDifficult = new Set(prev.difficultCards)
       const newMastered = new Set(prev.masteredCards)
@@ -123,9 +127,9 @@ export function FlashcardInterface({ flashcardData, onRestart }: FlashcardInterf
     
     toast.error("Card marked as difficult - you'll see it more often")
     handleNext()
-  }
+  }, [handleNext])
 
-  const handleShuffle = () => {
+  const handleShuffle = useCallback(() => {
     if (session.shuffled) {
       // Restore original order
       setFlashcards(originalOrder)
@@ -138,19 +142,116 @@ export function FlashcardInterface({ flashcardData, onRestart }: FlashcardInterf
       setSession(prev => ({ ...prev, shuffled: true, currentCard: 0, showBack: false }))
       toast.success("Cards shuffled!")
     }
-  }
+  }, [session.shuffled, originalOrder, flashcards])
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setSession({
       currentCard: 0,
       showBack: false,
       masteredCards: new Set(),
       difficultCards: new Set(),
-      shuffled: false
+      shuffled: false,
+      startTime: new Date(),
+      studyMode: 'sequential'
     })
     setFlashcards(originalOrder)
+    setStudyTime(0)
     toast.success("Session reset!")
-  }
+  }, [originalOrder])
+
+  const handleDownload = useCallback(() => {
+    const flashcardText = flashcards.map((card, index) => 
+      `Card ${index + 1}:\nFront: ${card.front}\nBack: ${card.back}\n`
+    ).join('\n')
+    
+    const blob = new Blob([flashcardText], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `flashcards-${new Date().toISOString().split('T')[0]}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    
+    toast.success('Flashcards downloaded!')
+  }, [flashcards])
+
+  useEffect(() => {
+    const parsedCards = parseFlashcards(flashcardData.result)
+    if (parsedCards.length === 0) {
+      toast.error("No flashcards could be parsed from the analysis")
+      return
+    }
+    setFlashcards(parsedCards)
+    setOriginalOrder(parsedCards)
+  }, [flashcardData.result])
+
+  // Study time tracking
+  useEffect(() => {
+    // Stop timer if all cards are mastered
+    if (flashcards.length > 0 && session.masteredCards.size === flashcards.length) {
+      return
+    }
+
+    const interval = setInterval(() => {
+      setStudyTime(prev => prev + 1)
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [flashcards.length, session.masteredCards.size])
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // Ignore if user is typing in an input
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        return
+      }
+
+      switch (event.key) {
+        case ' ': // Spacebar to flip
+          event.preventDefault()
+          handleFlip()
+          break
+        case 'ArrowLeft':
+          event.preventDefault()
+          handlePrevious()
+          break
+        case 'ArrowRight':
+          event.preventDefault()
+          handleNext()
+          break
+        case '1':
+          if (session.showBack) {
+            event.preventDefault()
+            handleDifficult()
+          }
+          break
+        case '2':
+          if (session.showBack) {
+            event.preventDefault()
+            handleMastered()
+          }
+          break
+        case 's':
+          event.preventDefault()
+          handleShuffle()
+          break
+        case 'r':
+          event.preventDefault()
+          handleReset()
+          break
+        case 'd':
+          event.preventDefault()
+          handleDownload()
+          break
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [session.showBack, handleFlip, handlePrevious, handleNext, handleDifficult, handleMastered, handleShuffle, handleReset, handleDownload])
 
   const progress = flashcards.length > 0 ? ((session.currentCard + 1) / flashcards.length) * 100 : 0
   const masteredCount = session.masteredCards.size
@@ -191,10 +292,14 @@ export function FlashcardInterface({ flashcardData, onRestart }: FlashcardInterf
                 <span>Study Flashcards</span>
               </CardTitle>
               <CardDescription>
-                Card {session.currentCard + 1} of {flashcards.length}
+                Card {session.currentCard + 1} of {flashcards.length} • {formatStudyTime(studyTime)} elapsed
               </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
+              <Badge variant="outline" className="flex items-center space-x-1">
+                <Clock className="h-3 w-3" />
+                <span>{formatStudyTime(studyTime)}</span>
+              </Badge>
               <Badge variant="outline" className="flex items-center space-x-1">
                 <CheckCircle className="h-3 w-3 text-green-600" />
                 <span>{masteredCount} mastered</span>
@@ -208,31 +313,44 @@ export function FlashcardInterface({ flashcardData, onRestart }: FlashcardInterf
           <Progress value={progress} className="mt-4" />
         </CardHeader>
         <CardContent>
-          <div className="flex justify-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleShuffle}
-            >
-              <Shuffle className="mr-2 h-4 w-4" />
-              {session.shuffled ? 'Original Order' : 'Shuffle'}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleReset}
-            >
-              <RotateCcw className="mr-2 h-4 w-4" />
-              Reset
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onRestart}
-            >
-              <Brain className="mr-2 h-4 w-4" />
-              New Set
-            </Button>
+          <div className="flex justify-between items-center">
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleShuffle}
+              >
+                <Shuffle className="mr-2 h-4 w-4" />
+                {session.shuffled ? 'Original Order' : 'Shuffle'}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleReset}
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Reset
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDownload}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRestart}
+              >
+                <Brain className="mr-2 h-4 w-4" />
+                New Set
+              </Button>
+            </div>
+            <div className="text-xs text-muted-foreground">
+              <div>Shortcuts: Space (flip) • ← → (navigate) • 1 (difficult) • 2 (mastered) • D (download)</div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -243,46 +361,23 @@ export function FlashcardInterface({ flashcardData, onRestart }: FlashcardInterf
           <Card 
             className={cn(
               "min-h-[400px] cursor-pointer transition-all duration-300 hover:shadow-lg",
+              session.showBack 
+                ? "bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200" 
+                : "bg-gradient-to-br from-gray-50 to-gray-100/50 border-gray-200",
               session.masteredCards.has(session.currentCard) && "ring-2 ring-green-500",
               session.difficultCards.has(session.currentCard) && "ring-2 ring-red-500"
             )}
             onClick={handleFlip}
           >
-            <CardHeader className="text-center">
-              <CardTitle className="flex items-center justify-center space-x-2">
-                {session.showBack ? (
-                  <>
-                    <EyeOff className="h-5 w-5" />
-                    <span>Back</span>
-                  </>
-                ) : (
-                  <>
-                    <Eye className="h-5 w-5" />
-                    <span>Front</span>
-                  </>
-                )}
-              </CardTitle>
-              <CardDescription>
-                Click to flip • Use buttons to navigate
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex items-center justify-center min-h-[250px]">
-              <div className="text-center space-y-4">
-                <p className="text-lg leading-relaxed">
+            <CardContent className="flex items-center justify-center min-h-[400px] p-8">
+              <div className="text-center space-y-6">
+                <p className="text-xl leading-relaxed font-medium">
                   {session.showBack ? currentCard.back : currentCard.front}
                 </p>
                 {!session.showBack && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleFlip()
-                    }}
-                    className="text-muted-foreground"
-                  >
+                  <p className="text-sm text-muted-foreground">
                     Click to reveal answer
-                  </Button>
+                  </p>
                 )}
               </div>
             </CardContent>
@@ -381,6 +476,27 @@ export function FlashcardInterface({ flashcardData, onRestart }: FlashcardInterf
                 value={((masteredCount + difficultCount) / flashcards.length) * 100} 
                 className="h-2"
               />
+            </div>
+          )}
+
+          {/* Completion Celebration */}
+          {masteredCount === flashcards.length && (
+            <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+              <div className="text-center space-y-2">
+                <Target className="h-8 w-8 text-green-600 mx-auto" />
+                <h3 className="font-semibold text-green-800">🎉 Congratulations!</h3>
+                <p className="text-sm text-green-700">
+                  You&apos;ve mastered all {flashcards.length} flashcards in {formatStudyTime(studyTime)}!
+                </p>
+                <div className="flex justify-center space-x-2 mt-4">
+                  <Button size="sm" onClick={handleReset} variant="outline">
+                    Study Again
+                  </Button>
+                  <Button size="sm" onClick={onRestart}>
+                    Create New Set
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
         </CardContent>
