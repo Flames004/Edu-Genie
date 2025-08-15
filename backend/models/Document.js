@@ -38,7 +38,7 @@ const documentSchema = new mongoose.Schema({
   analyses: [{
     taskType: {
       type: String,
-      enum: ['summary', 'explanation', 'quiz', 'keywords'],
+      enum: ['summary', 'explanation', 'quiz', 'keywords', 'flashcards'],
       required: true
     },
     result: {

@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import fetch from "node-fetch";
 import mammoth from "mammoth";
 import Document from "../models/Document.js";
+import FlashcardResult from "../models/FlashcardResult.js";
 import QuizResult from "../models/QuizResult.js";
 
 // Security: File signature validation
@@ -672,6 +673,11 @@ export const analyzeFile = async (req, res) => {
         return res.status(400).json({ message: "Could not extract meaningful text from the file" });
       }
 
+      // Normalize extracted text for flashcard analysis
+      textContent = textContent.replace(/\r\n|\r|\n/g, ' ')
+                               .replace(/\s+/g, ' ')
+                               .trim();
+
       // Run Gemini analysis
       const { task } = req.body;
       const validTasks = ["summary", "explanation", "quiz", "keywords", "flashcards"];
@@ -765,6 +771,45 @@ export const analyzeFile = async (req, res) => {
 };
 
 // --- Save quiz result ---
+// --- Save flashcard study time ---
+export const saveFlashcardResult = async (req, res) => {
+  try {
+    const { documentId, timeSpent } = req.body;
+    if (!documentId || !timeSpent) {
+      return res.status(400).json({ success: false, message: "Missing required fields: documentId, timeSpent" });
+    }
+    const flashcardResult = new FlashcardResult({
+      userId: req.user._id,
+      documentId,
+      timeSpent,
+      completedAt: new Date()
+    });
+    await flashcardResult.save();
+    res.json({ success: true, message: "Flashcard study time saved" });
+  } catch (err) {
+    console.error("Save flashcard result error:", err);
+    res.status(500).json({ success: false, message: "Error saving flashcard study time" });
+  }
+};
+
+// --- Get flashcard study stats ---
+export const getFlashcardStats = async (req, res) => {
+  try {
+    const totalTimeSpent = await FlashcardResult.aggregate([
+      { $match: { userId: req.user._id } },
+      { $group: { _id: null, total: { $sum: "$timeSpent" } } }
+    ]);
+    res.json({
+      success: true,
+      stats: {
+        totalTimeSpent: totalTimeSpent[0]?.total || 0
+      }
+    });
+  } catch (err) {
+    console.error("Get flashcard stats error:", err);
+    res.status(500).json({ success: false, message: "Error fetching flashcard stats" });
+  }
+};
 export const saveQuizResult = async (req, res) => {
   try {
     const { documentId, score, timeSpent, answers } = req.body;

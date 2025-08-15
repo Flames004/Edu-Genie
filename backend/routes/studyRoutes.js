@@ -9,7 +9,9 @@ import {
   reAnalyzeDocument,
   deleteDocument,
   saveQuizResult,
-  getQuizResults
+  getQuizResults,
+  saveFlashcardResult,
+  getFlashcardStats
 } from '../controllers/studyController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -31,6 +33,10 @@ router.delete('/documents/:id', protect, deleteDocument);
 // Quiz result routes
 router.post('/quiz-results', protect, saveQuizResult);
 router.get('/quiz-results', protect, getQuizResults);
+
+// Flashcard study time routes
+router.post('/flashcard-results', protect, saveFlashcardResult);
+router.get('/flashcard-results', protect, getFlashcardStats);
 
 // Test routes (temporary - remove in production)
 router.post('/test/text', analyzeText);

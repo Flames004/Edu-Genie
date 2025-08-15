@@ -20,12 +20,14 @@ import {
   Target,
   Download
 } from 'lucide-react'
-import { AnalysisResult, parseFlashcards, FlashCard } from '@/lib/api/analysis'
+import { AnalysisResult, parseFlashcards, FlashCard, saveFlashcardStudyTime } from '@/lib/api/analysis'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
+// Update props to include documentId
 interface FlashcardInterfaceProps {
   flashcardData: AnalysisResult
+  documentId: string
   onRestart: () => void
 }
 
@@ -39,7 +41,7 @@ interface StudySession {
   studyMode: 'sequential' | 'shuffle' | 'difficult'
 }
 
-export function FlashcardInterface({ flashcardData, onRestart }: FlashcardInterfaceProps) {
+export function FlashcardInterface({ flashcardData, documentId, onRestart }: FlashcardInterfaceProps) {
   const [flashcards, setFlashcards] = useState<FlashCard[]>([])
   const [originalOrder, setOriginalOrder] = useState<FlashCard[]>([])
   const [session, setSession] = useState<StudySession>({
@@ -200,6 +202,34 @@ export function FlashcardInterface({ flashcardData, onRestart }: FlashcardInterf
 
     return () => clearInterval(interval)
   }, [flashcards.length, session.masteredCards.size])
+
+  // Post study time to backend when session ends
+  useEffect(() => {
+    if (flashcards.length > 0 && session.masteredCards.size === flashcards.length && studyTime > 0) {
+      // Validate documentId and studyTime before posting
+      console.log('Saving flashcard study time:', { documentId, timeSpent: studyTime });
+      if (typeof documentId !== 'string' || !documentId) {
+        toast.error('Invalid documentId');
+        return;
+      }
+      if (typeof studyTime !== 'number' || studyTime <= 0) {
+        toast.error('Invalid study time');
+        return;
+      }
+      saveFlashcardStudyTime({
+        documentId,
+        timeSpent: studyTime
+      }).then(res => {
+        if (res.success) {
+          toast.success('Flashcard study time saved!')
+        } else {
+          toast.error(res.message || 'Failed to save flashcard study time')
+        }
+      }).catch(() => {
+        toast.error('Failed to save flashcard study time')
+      })
+    }
+  }, [flashcards.length, session.masteredCards.size, studyTime, documentId])
 
   // Keyboard shortcuts
   useEffect(() => {

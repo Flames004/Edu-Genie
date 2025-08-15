@@ -477,3 +477,15 @@ export const getQuizResults = async (): Promise<{ quizResults: QuizResult[]; sta
   const response = await apiClient.get('/study/quiz-results');
   return response.data;
 };
+
+// Save flashcard study time
+export const saveFlashcardStudyTime = async (data: { documentId: string; timeSpent: number }): Promise<{ success: boolean; message: string }> => {
+  const response = await apiClient.post('/study/flashcard-results', data);
+  return response.data;
+};
+
+// Get flashcard study time stats
+export const getFlashcardStats = async (): Promise<{ flashcardResults: FlashCard[]; stats: { totalTimeSpent: number } }> => {
+  const response = await apiClient.get('/study/flashcard-results');
+  return response.data;
+};

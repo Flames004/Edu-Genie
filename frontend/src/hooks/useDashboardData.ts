@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { documentsApi } from "@/lib/api/documents";
-import { getQuizResults } from "@/lib/api/analysis";
+import { getQuizResults, getFlashcardStats } from "@/lib/api/analysis";
 import { Document } from "@/types";
 
 interface DashboardData {
@@ -43,11 +43,23 @@ export function useDashboardData() {
     queryFn: getQuizResults,
   });
 
+  const {
+    data: flashcardStats,
+    isLoading: flashcardLoading,
+    error: flashcardError,
+  } = useQuery({
+    queryKey: ["flashcard-results"],
+    queryFn: getFlashcardStats,
+  });
+
+  const quizTimeMinutes = quizData?.stats.totalTimeSpent ? Math.round(quizData.stats.totalTimeSpent / 60) : 0;
+  const flashcardTimeMinutes = flashcardStats?.stats.totalTimeSpent ? Math.round(flashcardStats.stats.totalTimeSpent / 60) : 0;
+
   // Calculate stats from documents
   const stats = {
     documents: documents?.length || 0,
     analyses: documents?.reduce((total, doc) => total + (doc.analyses?.length || 0), 0) || 0,
-    studyTime: 0, // TODO: Implement study time tracking
+    studyTime: quizTimeMinutes + flashcardTimeMinutes,
     quizzes: {
       total: quizData?.stats.totalQuizzes || 0,
       averageScore: quizData?.stats.averageScore || 0,
@@ -84,8 +96,8 @@ export function useDashboardData() {
 
   return {
     data: dashboardData,
-    isLoading: documentsLoading || quizLoading,
-    error: documentsError || quizError,
+    isLoading: documentsLoading || quizLoading || flashcardLoading,
+    error: documentsError || quizError || flashcardError,
     refetch: () => {
       // TODO: Implement refetch for documents query
     },
