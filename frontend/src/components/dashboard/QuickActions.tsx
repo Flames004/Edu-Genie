@@ -1,8 +1,9 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, Brain, BookOpen, Zap, Plus } from "lucide-react";
+import { Upload, Brain, BookOpen, Zap, Plus, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 interface QuickActionProps {
   icon: React.ComponentType<{ className?: string }>;
@@ -73,13 +74,26 @@ export default function QuickActions() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Plus className="h-5 w-5" />
-          <span>Quick Actions</span>
-        </CardTitle>
-        <CardDescription>
-          Common tasks to get you started
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Plus className="h-5 w-5" />
+            <div>
+              <CardTitle>Quick Actions</CardTitle>
+              <CardDescription>
+                Common tasks to get you started
+              </CardDescription>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push("/dashboard/analysis")}
+            className="flex items-center space-x-2"
+          >
+            <span>Go to Analysis</span>
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4 md:grid-cols-2">
