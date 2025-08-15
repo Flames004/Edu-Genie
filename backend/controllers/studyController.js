@@ -255,6 +255,44 @@ ${content}`;
     case "keywords":
       prompt = `${chunkPrefix}Extract the most important keywords and key phrases from the following content. Organize them by relevance and importance:\n\n${content}`;
       break;
+    case "flashcards":
+      prompt = `${chunkPrefix}Based on the following content, create study flashcards with questions and answers to help learn the key concepts.
+
+CRITICAL: Follow this EXACT format for each flashcard:
+
+Card 1:
+Front: What is the main concept or principle discussed?
+Back: Clear, concise answer explaining the concept with key details.
+
+Card 2:
+Front: How does [specific concept] work?
+Back: Step-by-step explanation or detailed description of the process.
+
+Card 3:
+Front: What are the key characteristics of [topic]?
+Back: List or description of the main features and properties.
+
+Card 4:
+Front: Why is [concept/principle] important?
+Back: Explanation of significance, applications, or benefits.
+
+Card 5:
+Front: When would you use [method/concept]?
+Back: Practical applications and use cases with examples.
+
+STRICT FORMATTING RULES:
+1. Start each card with "Card [NUMBER]:" 
+2. Use "Front:" followed by a clear, concise question
+3. Use "Back:" followed by a comprehensive but focused answer
+4. Leave a blank line between each complete card
+5. Create 5-8 flashcards per chunk
+6. Make questions specific and answers informative
+7. Focus on key concepts, definitions, processes, and applications
+8. Do NOT add extra text, headers, or conclusions
+
+Content to analyze:
+${content}`;
+      break;
     default:
       prompt = `${chunkPrefix}Analyze the following content and provide insights based on the task "${type}":\n\n${content}`;
   }
@@ -315,6 +353,24 @@ async function combineChunkResults(chunkResults, type) {
     case "keywords":
       combinePrompt = `Please combine and organize the following keyword lists, removing duplicates and ranking by importance:\n\n${combinedContent}`;
       break;
+    case "flashcards":
+      combinePrompt = `Please combine and organize the following flashcard sets, removing duplicates and ensuring variety. Maintain the exact format:
+
+Card [NUMBER]:
+Front: [Question]
+Back: [Answer]
+
+Rules:
+1. Remove duplicate or very similar cards
+2. Ensure good variety of question types
+3. Keep the most important and useful cards
+4. Maintain clear, concise questions and comprehensive answers
+5. Number cards sequentially starting from Card 1
+6. Limit to 10-15 final cards maximum
+
+Flashcard sets to combine:
+${combinedContent}`;
+      break;
     default:
       return combinedContent;
   }
@@ -374,6 +430,11 @@ export const getAnalysisTypes = (req, res) => {
       type: "keywords",
       name: "Keywords Extraction",
       description: "Extract important keywords and key phrases organized by relevance"
+    },
+    {
+      type: "flashcards",
+      name: "Flashcards",
+      description: "Create study flashcards with questions and answers for key concepts"
     }
   ];
 
@@ -406,7 +467,7 @@ export const analyzeText = async (req, res) => {
       return res.status(400).json({ message: "Text is too long. Maximum 25,000 characters allowed." });
     }
 
-    const validTasks = ["summary", "explanation", "quiz", "keywords"];
+    const validTasks = ["summary", "explanation", "quiz", "keywords", "flashcards"];
     if (!validTasks.includes(task)) {
       return res.status(400).json({ 
         message: "Invalid task type. Valid options: " + validTasks.join(", ") 
@@ -486,7 +547,7 @@ export const getDocument = async (req, res) => {
 export const reAnalyzeDocument = async (req, res) => {
   try {
     const { task } = req.body;
-    const validTasks = ["summary", "explanation", "quiz", "keywords"];
+    const validTasks = ["summary", "explanation", "quiz", "keywords", "flashcards"];
     
     if (!validTasks.includes(task)) {
       return res.status(400).json({ 
@@ -613,7 +674,7 @@ export const analyzeFile = async (req, res) => {
 
       // Run Gemini analysis
       const { task } = req.body;
-      const validTasks = ["summary", "explanation", "quiz", "keywords"];
+      const validTasks = ["summary", "explanation", "quiz", "keywords", "flashcards"];
       const analysisTask = validTasks.includes(task) ? task : "summary";
       
       const analysis = await analyzeWithGemini(textContent, analysisTask);
