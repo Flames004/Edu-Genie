@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { FileText, Upload, Brain, Loader2, AlertCircle } from 'lucide-react'
 import { analyzeText, analyzeFile, reAnalyzeDocument, AnalysisResult } from '@/lib/api/analysis'
 import { documentsApi } from '@/lib/api/documents'
@@ -310,13 +309,12 @@ export function AnalysisForm({ analysisType, onAnalysisComplete }: AnalysisFormP
         )}
 
         {/* Analysis Type Info */}
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            This will generate a <strong>{analysisType}</strong> based on your input.
-            Processing may take a few moments depending on the content length.
-          </AlertDescription>
-        </Alert>
+        <div className="flex items-center gap-2 px-4 py-2 rounded-md bg-muted text-muted-foreground text-sm whitespace-nowrap overflow-x-auto">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span>
+            This will generate <span className='font-semibold'>{analysisType}</span> based on your input. Processing may take a few moments depending on the content length.
+          </span>
+        </div>
       </CardContent>
     </Card>
   )
