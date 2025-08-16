@@ -23,6 +23,7 @@ import {
   User, 
   Moon 
 } from "lucide-react";
+import Image from "next/image";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -69,9 +70,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="flex justify-between items-center h-16">
             {/* Logo and Greeting */}
             <div className="flex items-center space-x-6">
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 flex items-center space-x-2">
+                <Image
+                  src="/logo-genie3.png"
+                  alt="EduGenie Logo"
+                  className="object-contain"
+                  width={80}
+                  height={80}
+                  style={{ display: 'inline-block' }}
+                  priority
+                />
                 <button
-                  className="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors focus:outline-none"
+                  className="text-2xl font-bold text-[#5A2ECF] hover:text-blue-700 transition-colors focus:outline-none"
                   onClick={() => router.push("/dashboard")}
                   title="Go to Dashboard"
                 >
