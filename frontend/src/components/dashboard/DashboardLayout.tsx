@@ -75,8 +75,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   src="/logo-genie-nobg.png"
                   alt="EduGenie Logo"
                   className="object-contain"
-                  width={60}
-                  height={60}
+                  width={56}
+                  height={56}
                   style={{ display: 'inline-block' }}
                   priority
                 />
