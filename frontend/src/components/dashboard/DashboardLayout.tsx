@@ -20,7 +20,8 @@ import {
   Home, 
   LogOut, 
   Settings, 
-  User 
+  User, 
+  Moon 
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -66,15 +67,34 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <header className="bg-white shadow-sm border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center">
+            {/* Logo and Greeting */}
+            <div className="flex items-center space-x-6">
               <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold text-blue-600">EduGenie</h1>
+                <button
+                  className="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors focus:outline-none"
+                  onClick={() => router.push("/dashboard")}
+                  title="Go to Dashboard"
+                >
+                  EduGenie
+                </button>
+              </div>
+              <div className="hidden sm:block">
+                <span className="text-base text-muted-foreground font-medium">
+                  {user?.name ? `Welcome, ${user.name.split(" ")[0]}!` : "Welcome!"}
+                </span>
               </div>
             </div>
 
-            {/* User Menu */}
+            {/* User Menu and Dark Mode Toggle */}
             <div className="flex items-center space-x-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                title="Toggle dark mode"
+                onClick={() => toast("Dark mode coming soon!")}
+              >
+                <Moon className="h-5 w-5 text-gray-500" />
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -85,30 +105,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuContent className="w-52" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {user?.name || "User"}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user?.email}
-                      </p>
+                      <span className="text-sm font-semibold">{user?.name || "User"}</span>
+                      <span className="text-xs text-muted-foreground">{user?.email}</span>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
+                    Profile
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
+                    Settings
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    Log out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
