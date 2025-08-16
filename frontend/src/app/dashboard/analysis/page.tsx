@@ -195,6 +195,7 @@ export default function AnalysisPage() {
           {analysisResults && analysisResults.type === 'flashcards' && (
             <FlashcardInterface
               flashcardData={analysisResults}
+              documentId={analysisResults.documentId ?? ''}
               onRestart={() => setActiveTab('form')}
             />
           )}

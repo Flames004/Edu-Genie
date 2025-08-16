@@ -23,6 +23,7 @@ import {
 import { AnalysisResult, parseFlashcards, FlashCard, saveFlashcardStudyTime } from '@/lib/api/analysis'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { useQueryClient } from "@tanstack/react-query"
 
 // Update props to include documentId
 interface FlashcardInterfaceProps {
@@ -42,6 +43,7 @@ interface StudySession {
 }
 
 export function FlashcardInterface({ flashcardData, documentId, onRestart }: FlashcardInterfaceProps) {
+  const queryClient = useQueryClient();
   const [flashcards, setFlashcards] = useState<FlashCard[]>([])
   const [originalOrder, setOriginalOrder] = useState<FlashCard[]>([])
   const [session, setSession] = useState<StudySession>({
@@ -206,10 +208,13 @@ export function FlashcardInterface({ flashcardData, documentId, onRestart }: Fla
   // Post study time to backend when session ends
   useEffect(() => {
     if (flashcards.length > 0 && session.masteredCards.size === flashcards.length && studyTime > 0) {
-      // Validate documentId and studyTime before posting
-      console.log('Saving flashcard study time:', { documentId, timeSpent: studyTime });
-      if (typeof documentId !== 'string' || !documentId) {
-        toast.error('Invalid documentId');
+      // Robust documentId validation and logging
+      let validDocumentId = '';
+      if (typeof documentId === 'string' && documentId.match(/^[a-fA-F0-9]{24}$/)) {
+        validDocumentId = documentId;
+      } else {
+        console.error('Invalid documentId:', documentId);
+        toast.error('Invalid documentId: ' + String(documentId));
         return;
       }
       if (typeof studyTime !== 'number' || studyTime <= 0) {
@@ -217,19 +222,20 @@ export function FlashcardInterface({ flashcardData, documentId, onRestart }: Fla
         return;
       }
       saveFlashcardStudyTime({
-        documentId,
+        documentId: validDocumentId,
         timeSpent: studyTime
       }).then(res => {
         if (res.success) {
-          toast.success('Flashcard study time saved!')
+          toast.success('Flashcard study time saved!');
+          queryClient.invalidateQueries({ queryKey: ['flashcard-results'] });
         } else {
-          toast.error(res.message || 'Failed to save flashcard study time')
+          toast.error(res.message || 'Failed to save flashcard study time');
         }
       }).catch(() => {
-        toast.error('Failed to save flashcard study time')
-      })
+        toast.error('Failed to save flashcard study time');
+      });
     }
-  }, [flashcards.length, session.masteredCards.size, studyTime, documentId])
+  }, [flashcards.length, session.masteredCards.size, studyTime, documentId, queryClient])
 
   // Keyboard shortcuts
   useEffect(() => {
