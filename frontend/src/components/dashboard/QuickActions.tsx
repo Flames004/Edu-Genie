@@ -17,7 +17,7 @@ function QuickActionCard({ icon: Icon, title, description, action, variant = "de
   return (
     <Card 
       className={`cursor-pointer transition-all hover:shadow-md ${
-        variant === "primary" ? "border-blue-200 bg-blue-50" : ""
+        variant === "primary" ? "border-[#d7c9ff] bg-[#f2eeff]" : ""
       }`}
       onClick={action}
     >
@@ -25,7 +25,7 @@ function QuickActionCard({ icon: Icon, title, description, action, variant = "de
         <div className="flex items-center space-x-4">
           <div className={`p-3 rounded-lg ${
             variant === "primary" 
-              ? "bg-blue-100 text-blue-600" 
+              ? "bg-[#e3d9ff] text-[#5A2ECF]" 
               : "bg-gray-100 text-gray-600"
           }`}>
             <Icon className="h-6 w-6" />

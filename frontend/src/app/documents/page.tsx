@@ -85,7 +85,7 @@ export default function DocumentsPage() {
                 <FileText className="h-4 w-4" />
                 <span>Document Library</span>
                 {data?.recentDocuments && (
-                  <span className="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                  <span className="ml-2 bg-[#e4dbff] text-[#411ba7] text-xs px-2 py-1 rounded-full">
                     {data.recentDocuments.length}
                   </span>
                 )}

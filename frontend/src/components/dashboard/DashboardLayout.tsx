@@ -21,7 +21,7 @@ import {
   LogOut, 
   Settings, 
   User, 
-  Moon 
+  Moon,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -72,33 +72,33 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="flex items-center space-x-6">
               <div className="flex-shrink-0 flex items-center space-x-2">
                 <Image
-                  src="/logo-genie3.png"
+                  src="/logo-genie-nobg.png"
                   alt="EduGenie Logo"
                   className="object-contain"
-                  width={80}
-                  height={80}
+                  width={60}
+                  height={60}
                   style={{ display: 'inline-block' }}
                   priority
                 />
                 <button
-                  className="text-2xl font-bold text-[#5A2ECF] hover:text-blue-700 transition-colors focus:outline-none"
+                  className="text-2xl font-bold text-[#5A2ECF] hover:text-[#4826a7] transition-colors focus:outline-none"
                   onClick={() => router.push("/dashboard")}
                   title="Go to Dashboard"
                 >
                   EduGenie
                 </button>
               </div>
+            </div>
+
+            {/* User Menu and Dark Mode Toggle */}
+            <div className="flex items-center space-x-4">
               <div className="hidden sm:block">
                 <span className="text-base text-muted-foreground font-medium">
                   {user?.name ? `Welcome, ${user.name.split(" ")[0]}!` : "Welcome!"}
                 </span>
               </div>
-            </div>
-
-            {/* User Menu and Dark Mode Toggle */}
-            <div className="flex items-center space-x-4">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="icon"
                 title="Toggle dark mode"
                 onClick={() => toast("Dark mode coming soon!")}
@@ -109,7 +109,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-blue-600 text-white">
+                      <AvatarFallback className="bg-[#5A2ECF] text-white">
                         {user?.name ? getInitials(user.name) : "U"}
                       </AvatarFallback>
                     </Avatar>
@@ -155,8 +155,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     key={item.label}
                     variant={isActive ? "default" : "ghost"}
                     className={`w-full justify-start ${
-                      isActive 
-                        ? "bg-blue-600 text-white hover:bg-blue-700" 
+                      isActive
+                        ? "bg-[#5A2ECF] text-white hover:bg-[#4826a7]" 
                         : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                     }`}
                     onClick={() => router.push(item.href)}

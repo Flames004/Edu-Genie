@@ -23,7 +23,7 @@ export default function Home() {
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">EduGenie</h1>
+          <h1 className="text-2xl font-bold text-[#5A2ECF]">EduGenie</h1>
           <div className="space-x-4">
             <Link href="/login">
               <Button variant="outline">Sign In</Button>
@@ -40,7 +40,7 @@ export default function Home() {
         <div className="text-center max-w-4xl mx-auto">
           <h2 className="text-5xl font-bold text-gray-900 mb-6">
             Your AI-Powered
-            <span className="text-blue-600"> Learning Companion</span>
+            <span className="text-[#5A2ECF]"> Learning Companion</span>
           </h2>
           <p className="text-xl text-gray-600 mb-8">
             Upload documents, generate summaries, create quizzes, and enhance your study 

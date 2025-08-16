@@ -166,20 +166,20 @@ export default function FileUpload({
             className={`
               border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all duration-200
               ${isDragActive 
-                ? "border-blue-500 bg-blue-50 scale-105" 
-                : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
+                ? "border-[#5A2ECF] bg-[#f2edff] scale-105" 
+                : "border-gray-300 hover:border-[#6640d0] hover:bg-[#f5f1ff]"
               }
             `}
           >
             <input {...getInputProps()} />
             <div className="space-y-4">
-              <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <Upload className="h-6 w-6 text-blue-600" />
+              <div className="mx-auto w-12 h-12 bg-[#e5dcfe] rounded-full flex items-center justify-center">
+                <Upload className="h-6 w-6 text-[#5A2ECF]" />
               </div>
               
               {isDragActive ? (
                 <div>
-                  <h3 className="text-lg font-semibold text-blue-600">Drop files here!</h3>
+                  <h3 className="text-lg font-semibold text-[#5A2ECF]">Drop files here!</h3>
                   <p className="text-sm text-gray-600">Release to upload your documents</p>
                 </div>
               ) : (
@@ -188,7 +188,7 @@ export default function FileUpload({
                     Drag & drop your documents here
                   </h3>
                   <p className="text-sm text-gray-600">
-                    or <span className="font-medium text-blue-600">click to browse</span>
+                    or <span className="font-medium text-[#5A2ECF]">click to browse</span>
                   </p>
                   <p className="text-xs text-gray-500 mt-2">
                     Supports PDF, DOCX, DOC, TXT • Max {maxSize / 1024 / 1024}MB per file • Up to {maxFiles} files
