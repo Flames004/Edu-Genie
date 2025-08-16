@@ -20,12 +20,14 @@ import { cn } from '@/lib/utils'
 interface AnalysisFormProps {
   analysisType: string
   onAnalysisComplete: (results: AnalysisResult & { documentId?: string }) => void
+  defaultDocumentId?: string
+  lockDocument?: boolean
 }
 
-export function AnalysisForm({ analysisType, onAnalysisComplete }: AnalysisFormProps) {
-  const [inputMethod, setInputMethod] = useState<'text' | 'file' | 'document'>('text')
+export function AnalysisForm({ analysisType, onAnalysisComplete, defaultDocumentId = '', lockDocument = false }: AnalysisFormProps) {
+  const [inputMethod, setInputMethod] = useState<'text' | 'file' | 'document'>(defaultDocumentId ? 'document' : 'text')
   const [textInput, setTextInput] = useState('')
-  const [selectedDocument, setSelectedDocument] = useState<string>('')
+  const [selectedDocument, setSelectedDocument] = useState<string>(defaultDocumentId)
   const [progress, setProgress] = useState(0)
 
   // Fetch user documents for re-analysis
@@ -260,7 +262,7 @@ export function AnalysisForm({ analysisType, onAnalysisComplete }: AnalysisFormP
             <TabsContent value="document" className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="document-select">Select Document</Label>
-                <Select value={selectedDocument} onValueChange={setSelectedDocument}>
+                <Select value={selectedDocument} onValueChange={setSelectedDocument} disabled={lockDocument}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choose a saved document" />
                   </SelectTrigger>
@@ -275,6 +277,9 @@ export function AnalysisForm({ analysisType, onAnalysisComplete }: AnalysisFormP
                     ))}
                   </SelectContent>
                 </Select>
+                {lockDocument && (
+                  <p className="text-xs text-muted-foreground mt-1">Document pre-selected from quick action</p>
+                )}
               </div>
               <Button 
                 onClick={handleDocumentAnalysis}

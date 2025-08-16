@@ -13,7 +13,6 @@ import {
   FileText, 
   MoreHorizontal,
   Eye,
-  Download,
   Trash2,
   Calendar,
   File
@@ -46,7 +45,6 @@ export default function DocumentLibrary({
   isLoading,
   onViewDocument,
   onDeleteDocument,
-  onAnalyzeDocument,
 }: DocumentLibraryProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -252,14 +250,6 @@ export default function DocumentLibrary({
                           <Eye className="mr-2 h-4 w-4" />
                           View Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onAnalyzeDocument?.(document._id)}>
-                          <FileText className="mr-2 h-4 w-4" />
-                          Analyze
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Download className="mr-2 h-4 w-4" />
-                          Download
-                        </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => onDeleteDocument?.(document._id)}
                           className="text-red-600"
@@ -333,13 +323,9 @@ export default function DocumentLibrary({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onAnalyzeDocument?.(document._id)}>
-                            <FileText className="mr-2 h-4 w-4" />
-                            Analyze
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Download className="mr-2 h-4 w-4" />
-                            Download
+                          <DropdownMenuItem onClick={() => onViewDocument?.(document)}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Details
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => onDeleteDocument?.(document._id)}

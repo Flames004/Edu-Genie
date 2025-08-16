@@ -19,7 +19,7 @@ import {
   FileIcon,
   Eye,
   Brain,
-  Clock,
+  Tags,
   Share2,
   Trash2,
 } from "lucide-react";
@@ -81,17 +81,11 @@ export default function DocumentModal({
     return { label: "FILE", color: "bg-purple-100 text-purple-800" };
   };
 
-  const getPreviewText = (text: string, maxLength: number = 500) => {
-    if (!text) return "No preview available";
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + "...";
-  };
-
   const analysisTypes = [
-    { key: "summary", label: "Summary", icon: FileText },
-    { key: "quiz", label: "Quiz", icon: Brain },
-    { key: "flashcards", label: "Flashcards", icon: Eye },
-    { key: "questions", label: "Q&A", icon: Clock },
+  { key: "summary", label: "Summary", icon: FileText },
+  { key: "quiz", label: "Quiz", icon: Brain },
+  { key: "flashcards", label: "Flashcards", icon: Eye },
+  { key: "keywords", label: "Keywords", icon: Tags },
   ];
 
   const fileTypeBadge = getFileTypeBadge(document.mimeType);
@@ -189,8 +183,10 @@ export default function DocumentModal({
                         <Button
                           key={type.key}
                           variant="outline"
-                          onClick={() => onAnalyze?.(document._id, type.key)}
                           className="justify-start"
+                          onClick={() => {
+                            window.location.assign(`/dashboard/analysis?type=${type.key}&documentId=${document._id}`);
+                          }}
                         >
                           <type.icon className="mr-2 h-4 w-4" />
                           Generate {type.label}
@@ -209,27 +205,11 @@ export default function DocumentModal({
                     <CardTitle className="text-lg">Document Content Preview</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {document.textContent ? (
-                      <div className="space-y-4">
-                        <div className="text-sm text-gray-600">
-                          Showing first 500 characters of {document.textLength?.toLocaleString()} total characters
-                        </div>
-                        <div className="bg-gray-50 p-4 rounded-lg text-sm leading-relaxed whitespace-pre-wrap">
-                          {getPreviewText(document.textContent)}
-                        </div>
-                        {document.textContent.length > 500 && (
-                          <p className="text-sm text-gray-500 italic">
-                            Content preview truncated. Generate an analysis to see full content insights.
-                          </p>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8 text-gray-500">
-                        <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                        <p>No text content available for preview</p>
-                        <p className="text-sm mt-2">This might be an image-based PDF or protected file</p>
-                      </div>
-                    )}
+                    <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+                      <FileText className="h-12 w-12 mb-4 text-gray-400" />
+                      <p className="text-lg font-semibold mb-2">Coming Soon</p>
+                      <p className="text-sm">Document content preview will be available in a future update.</p>
+                    </div>
                   </CardContent>
                 </Card>
               </div>

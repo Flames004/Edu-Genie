@@ -15,6 +15,7 @@ import { documentsApi } from "@/lib/api/documents";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Document } from "@/types";
+import { useRouter } from "next/navigation";
 
 export default function DocumentsPage() {
   const searchParams = useSearchParams();
@@ -27,6 +28,7 @@ export default function DocumentsPage() {
   
   const { data, isLoading } = useDashboardData();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const deleteMutation = useMutation({
     mutationFn: async (documentId: string) => {
@@ -54,8 +56,8 @@ export default function DocumentsPage() {
   };
 
   const handleAnalyzeDocument = (documentId: string, type?: string) => {
-    // TODO: Implement analysis functionality
-    toast.info(`Analysis feature coming soon! (${type || 'general'} analysis for ${documentId})`);
+    // Always pass both type and documentId for analysis navigation
+    router.push(`/dashboard/analysis?type=${type || 'summary'}&documentId=${documentId}`);
   };
 
   const handleUploadComplete = () => {

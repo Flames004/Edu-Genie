@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, MoreHorizontal, Eye, Download } from "lucide-react";
+import { FileText, MoreHorizontal, Download, Eye, Trash2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Document } from "@/types";
 
@@ -17,8 +17,7 @@ interface RecentDocumentsProps {
 export default function RecentDocuments({ 
   documents, 
   isLoading,
-  onViewDocument, 
-  onAnalyzeDocument 
+  onViewDocument
 }: RecentDocumentsProps) {
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
@@ -166,14 +165,6 @@ export default function RecentDocuments({
               </div>
 
               <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onViewDocument?.(document._id)}
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
-                
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="sm">
@@ -185,13 +176,24 @@ export default function RecentDocuments({
                       <Eye className="mr-2 h-4 w-4" />
                       View Details
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onAnalyzeDocument?.(document._id)}>
-                      <FileText className="mr-2 h-4 w-4" />
-                      Analyze
-                    </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Download className="mr-2 h-4 w-4" />
                       Download
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        if (window.confirm('Are you sure you want to delete this document?')) {
+                          if (typeof document._id === 'string' && document._id) {
+                            // Use a custom event to notify parent to delete
+                            const event = new CustomEvent('deleteDocument', { detail: document._id });
+                            window.dispatchEvent(event);
+                          }
+                        }
+                      }}
+                      className="text-red-600"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

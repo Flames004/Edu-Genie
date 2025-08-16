@@ -6,9 +6,20 @@ import DashboardStats from "@/components/dashboard/DashboardStats";
 import RecentDocuments from "@/components/dashboard/RecentDocuments";
 import QuickActions from "@/components/dashboard/QuickActions";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import DocumentModal from "@/components/documents/DocumentModal";
+import { Document } from "@/types";
+import { useState } from "react";
 
 export default function DashboardPage() {
   const { data, isLoading, error } = useDashboardData();
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [showModal, setShowModal] = useState(false);
+
+  const handleViewDocument = (documentId: string) => {
+    const doc = data?.recentDocuments.find((d) => d._id === documentId);
+    setSelectedDocument(doc || null);
+    setShowModal(true);
+  };
 
   if (error) {
     console.error("Dashboard data error:", error);
@@ -19,7 +30,7 @@ export default function DashboardPage() {
       <DashboardLayout>
         <div className="space-y-6">
           {/* Dashboard Stats */}
-          <DashboardStats 
+          <DashboardStats
             stats={data?.stats}
             isLoading={isLoading}
           />
@@ -28,11 +39,17 @@ export default function DashboardPage() {
           <QuickActions />
 
           {/* Recent Documents */}
-          <RecentDocuments 
+          <RecentDocuments
             documents={data?.recentDocuments || []}
             isLoading={isLoading}
+            onViewDocument={handleViewDocument}
           />
         </div>
+        <DocumentModal
+          document={selectedDocument}
+          open={showModal}
+          onOpenChange={setShowModal}
+        />
       </DashboardLayout>
     </ProtectedRoute>
   );

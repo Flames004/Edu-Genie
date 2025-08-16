@@ -29,6 +29,8 @@ export default function AnalysisPage() {
   const [activeTab, setActiveTab] = useState('form')
   const [analysisResults, setAnalysisResults] = useState<(AnalysisResult & { documentId?: string }) | null>(null)
   const [analysisType, setAnalysisType] = useState(searchParams.get('type') || 'summary')
+  const defaultDocumentId = searchParams.get('documentId') || ''
+  const lockDocument = !!defaultDocumentId
 
   // Fetch available analysis types
   const { data: analysisTypes } = useQuery({
@@ -169,6 +171,8 @@ export default function AnalysisPage() {
           <AnalysisForm
             analysisType={analysisType}
             onAnalysisComplete={handleAnalysisComplete}
+            defaultDocumentId={defaultDocumentId}
+            lockDocument={lockDocument}
           />
         </TabsContent>
 
