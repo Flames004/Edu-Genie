@@ -214,11 +214,10 @@ export function FlashcardInterface({ flashcardData, documentId, onRestart }: Fla
         validDocumentId = documentId;
       } else {
         console.error('Invalid documentId:', documentId);
-        toast.error('Invalid documentId: ' + String(documentId));
         return;
       }
       if (typeof studyTime !== 'number' || studyTime <= 0) {
-        toast.error('Invalid study time');
+        console.error('Invalid study time:', studyTime);
         return;
       }
       saveFlashcardStudyTime({
@@ -229,10 +228,12 @@ export function FlashcardInterface({ flashcardData, documentId, onRestart }: Fla
           toast.success('Flashcard study time saved!');
           queryClient.invalidateQueries({ queryKey: ['flashcard-results'] });
         } else {
-          toast.error(res.message || 'Failed to save flashcard study time');
+          console.error('Failed to save flashcard study time:', res.message);
+          toast.error('Could not save study time. Please try again.');
         }
-      }).catch(() => {
-        toast.error('Failed to save flashcard study time');
+      }).catch((err) => {
+        console.error('Failed to save flashcard study time:', err);
+        toast.error('Could not save study time. Please try again.');
       });
     }
   }, [flashcards.length, session.masteredCards.size, studyTime, documentId, queryClient])
