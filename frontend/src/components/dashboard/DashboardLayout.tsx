@@ -118,8 +118,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </header>
 
       <div className="flex">
-        {/* Sidebar */}
-        <nav className="w-64 bg-white shadow-sm border-r min-h-[calc(100vh-4rem)]">
+        {/* Sidebar (static sticky) */}
+        <nav className="w-64 bg-white shadow-sm border-r h-screen sticky top-16">
           <div className="p-6">
             <div className="space-y-1">
               {navigationItems.map((item) => {

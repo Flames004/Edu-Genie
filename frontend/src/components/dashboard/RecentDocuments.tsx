@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, MoreHorizontal, Download, Eye, Trash2 } from "lucide-react";
+import { FileText, MoreHorizontal, Eye, Trash2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Document } from "@/types";
 
@@ -175,10 +175,6 @@ export default function RecentDocuments({
                     <DropdownMenuItem onClick={() => onViewDocument?.(document._id)}>
                       <Eye className="mr-2 h-4 w-4" />
                       View Details
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Download className="mr-2 h-4 w-4" />
-                      Download
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
