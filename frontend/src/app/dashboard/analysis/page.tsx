@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -62,6 +62,7 @@ export default function AnalysisPage() {
   const IconComponent = analysisIcons[analysisType] || Brain
 
   return (
+    <Suspense fallback={<div>Loading...</div>}>
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 space-y-8">
         {/* Header Section */}
@@ -207,5 +208,6 @@ export default function AnalysisPage() {
       </Tabs>
       </div>
     </div>
+    </Suspense>
   )
 }
