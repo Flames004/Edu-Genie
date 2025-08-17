@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import type { FileRejection } from "react-dropzone";
 import { useDropzone } from "react-dropzone";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,79 +43,82 @@ export default function FileUpload({
     },
   });
 
-  const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
-    // Handle rejected files
-    rejectedFiles.forEach((rejection) => {
-      const { file, errors } = rejection;
-      errors.forEach((error: any) => {
-        if (error.code === "file-too-large") {
-          toast.error(`File "${file.name}" is too large. Maximum size is ${maxSize / 1024 / 1024}MB.`);
-        } else if (error.code === "file-invalid-type") {
-          toast.error(`File "${file.name}" has an invalid type. Only PDF, DOCX, and TXT files are allowed.`);
-        } else {
-          toast.error(`Error with file "${file.name}": ${error.message}`);
-        }
+  const onDrop = useCallback(
+    (acceptedFiles: File[], fileRejections: FileRejection[]) => {
+      // Handle rejected files
+      fileRejections.forEach((rejection) => {
+        const { file, errors } = rejection;
+        errors.forEach((error) => {
+          if (error.code === "file-too-large") {
+            toast.error(`File "${file.name}" is too large. Maximum size is ${maxSize / 1024 / 1024}MB.`);
+          } else if (error.code === "file-invalid-type") {
+            toast.error(`File "${file.name}" has an invalid type. Only PDF, DOCX, and TXT files are allowed.`);
+          } else {
+            toast.error(`Error with file "${file.name}": ${error.message}`);
+          }
+        });
       });
-    });
 
-    // Handle accepted files
-    const newFiles: FileWithProgress[] = acceptedFiles.map((file) => ({
-      file,
-      progress: 0,
-      status: "uploading" as const,
-      id: Math.random().toString(36).substr(2, 9),
-    }));
+      // Handle accepted files
+      const newFiles: FileWithProgress[] = acceptedFiles.map((file) => ({
+        file,
+        progress: 0,
+        status: "uploading" as const,
+        id: Math.random().toString(36).substr(2, 9),
+      }));
 
-    setFiles((prev) => [...prev, ...newFiles]);
+      setFiles((prev) => [...prev, ...newFiles]);
 
-    // Upload each file
-    newFiles.forEach((fileWithProgress) => {
-      uploadFile(fileWithProgress);
-    });
-  }, [maxSize]);
+      // Upload each file
+      newFiles.forEach((fileWithProgress) => {
+        // Move uploadFile logic here to avoid dependency issues
+        (async () => {
+          try {
+            // Simulate progress for better UX
+            const progressInterval = setInterval(() => {
+              setFiles((prev) =>
+                prev.map((f) =>
+                  f.id === fileWithProgress.id
+                    ? { ...f, progress: Math.min(f.progress + 10, 90) }
+                    : f
+                )
+              );
+            }, 200);
 
-  const uploadFile = async (fileWithProgress: FileWithProgress) => {
-    try {
-      // Simulate progress for better UX
-      const progressInterval = setInterval(() => {
-        setFiles((prev) =>
-          prev.map((f) =>
-            f.id === fileWithProgress.id
-              ? { ...f, progress: Math.min(f.progress + 10, 90) }
-              : f
-          )
-        );
-      }, 200);
+            await uploadMutation.mutateAsync(fileWithProgress.file);
 
-      const response = await uploadMutation.mutateAsync(fileWithProgress.file);
+            clearInterval(progressInterval);
 
-      clearInterval(progressInterval);
+            setFiles((prev) =>
+              prev.map((f) =>
+                f.id === fileWithProgress.id
+                  ? { ...f, progress: 100, status: "success" }
+                  : f
+              )
+            );
 
-      setFiles((prev) =>
-        prev.map((f) =>
-          f.id === fileWithProgress.id
-            ? { ...f, progress: 100, status: "success" }
-            : f
-        )
-      );
+            toast.success(`"${fileWithProgress.file.name}" uploaded successfully!`);
+          } catch (error) {
+            const errMsg = (error instanceof Error && error.message) ? error.message : "Upload failed";
+            setFiles((prev) =>
+              prev.map((f) =>
+                f.id === fileWithProgress.id
+                  ? { 
+                      ...f, 
+                      status: "error", 
+                      error: errMsg
+                    }
+                  : f
+              )
+            );
+            toast.error(`Failed to upload "${fileWithProgress.file.name}"`);
+          }
+        })();
+      });
+    },
+    [maxSize, uploadMutation]
+  );
 
-      toast.success(`"${fileWithProgress.file.name}" uploaded successfully!`);
-    } catch (error: any) {
-      setFiles((prev) =>
-        prev.map((f) =>
-          f.id === fileWithProgress.id
-            ? { 
-                ...f, 
-                status: "error", 
-                error: error.message || "Upload failed" 
-              }
-            : f
-        )
-      );
-
-      toast.error(`Failed to upload "${fileWithProgress.file.name}"`);
-    }
-  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
