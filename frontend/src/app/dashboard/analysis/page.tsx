@@ -6,12 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Brain, FileText, HelpCircle, Zap, ArrowLeft, Tags } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { 
-  AnalysisForm, 
-  AnalysisResults, 
-  QuizInterface, 
-  FlashcardInterface 
-} from '@/components/analysis'
+import { AnalysisForm, AnalysisResults, QuizInterface, FlashcardInterface } from '@/components/analysis'
 import { useQuery } from '@tanstack/react-query'
 import { getAnalysisTypes, AnalysisResult, AnalysisType } from '@/lib/api/analysis'
 
@@ -20,11 +15,19 @@ const analysisIcons: Record<string, typeof Brain> = {
   explanation: FileText,
   quiz: HelpCircle,
   keywords: Tags,
-  flashcards: Zap
+  flashcards: Zap,
 }
 
 export default function AnalysisPage() {
-  const searchParams = useSearchParams()
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AnalysisPageContent />
+    </Suspense>
+  )
+}
+
+function AnalysisPageContent() {
+  const searchParams = useSearchParams() // ✅ now inside suspense
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('form')
   const [analysisResults, setAnalysisResults] = useState<(AnalysisResult & { documentId?: string }) | null>(null)
@@ -32,7 +35,6 @@ export default function AnalysisPage() {
   const defaultDocumentId = searchParams.get('documentId') || ''
   const lockDocument = !!defaultDocumentId
 
-  // Fetch available analysis types
   const { data: analysisTypes } = useQuery({
     queryKey: ['analysisTypes'],
     queryFn: getAnalysisTypes,
@@ -47,8 +49,6 @@ export default function AnalysisPage() {
 
   const handleAnalysisComplete = (results: AnalysisResult & { documentId?: string }) => {
     setAnalysisResults(results)
-    
-    // Navigate to appropriate results tab based on analysis type
     if (results.type === 'quiz') {
       setActiveTab('quiz')
     } else if (results.type === 'flashcards') {
@@ -62,7 +62,6 @@ export default function AnalysisPage() {
   const IconComponent = analysisIcons[analysisType] || Brain
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 space-y-8">
         {/* Header Section */}
@@ -79,7 +78,7 @@ export default function AnalysisPage() {
               <span>Back to Dashboard</span>
             </Button>
           </div>
-          
+
           {/* Page Title and Description */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-3">
@@ -116,8 +115,8 @@ export default function AnalysisPage() {
                     <Card
                       key={type.type}
                       className={`cursor-pointer transition-all hover:shadow-md border-2 ${
-                        isSelected 
-                          ? 'border-primary bg-primary/5 shadow-md' 
+                        isSelected
+                          ? 'border-primary bg-primary/5 shadow-md'
                           : 'border-border hover:border-primary/50'
                       }`}
                       onClick={() => {
@@ -127,22 +126,18 @@ export default function AnalysisPage() {
                       }}
                     >
                       <CardContent className="p-4 flex flex-col items-center text-center space-y-3 min-h-[160px] justify-between">
-                        <div className={`p-3 rounded-full ${
-                          isSelected 
-                            ? 'bg-primary text-primary-foreground' 
-                            : 'bg-muted'
-                        }`}>
+                        <div
+                          className={`p-3 rounded-full ${
+                            isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                          }`}
+                        >
                           <Icon className="h-6 w-6" />
                         </div>
                         <div className="space-y-2 flex-1 flex flex-col justify-center">
-                          <h3 className={`font-semibold text-sm leading-tight ${
-                            isSelected ? 'text-primary' : ''
-                          }`}>
+                          <h3 className={`font-semibold text-sm leading-tight ${isSelected ? 'text-primary' : ''}`}>
                             {type.name}
                           </h3>
-                          <p className="text-xs text-muted-foreground leading-relaxed">
-                            {type.description}
-                          </p>
+                          <p className="text-xs text-muted-foreground leading-relaxed">{type.description}</p>
                         </div>
                       </CardContent>
                     </Card>
@@ -155,59 +150,55 @@ export default function AnalysisPage() {
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="form">Generate</TabsTrigger>
-          <TabsTrigger value="results" disabled={!analysisResults || analysisResults.type === 'quiz'}>
-            Results
-          </TabsTrigger>
-          <TabsTrigger value="quiz" disabled={!analysisResults || analysisResults.type !== 'quiz'}>
-            Interactive Quiz
-          </TabsTrigger>
-          <TabsTrigger value="flashcards" disabled={!analysisResults || analysisResults.type !== 'flashcards'}>
-            Flashcards
-          </TabsTrigger>
-        </TabsList>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="form">Generate</TabsTrigger>
+            <TabsTrigger value="results" disabled={!analysisResults || analysisResults.type === 'quiz'}>
+              Results
+            </TabsTrigger>
+            <TabsTrigger value="quiz" disabled={!analysisResults || analysisResults.type !== 'quiz'}>
+              Interactive Quiz
+            </TabsTrigger>
+            <TabsTrigger value="flashcards" disabled={!analysisResults || analysisResults.type !== 'flashcards'}>
+              Flashcards
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="form" className="space-y-6">
-          <AnalysisForm
-            analysisType={analysisType}
-            onAnalysisComplete={handleAnalysisComplete}
-            defaultDocumentId={defaultDocumentId}
-            lockDocument={lockDocument}
-          />
-        </TabsContent>
-
-        <TabsContent value="results" className="space-y-6">
-          {analysisResults && (
-            <AnalysisResults
-              results={analysisResults}
-              onRegenerate={() => setActiveTab('form')}
+          <TabsContent value="form" className="space-y-6">
+            <AnalysisForm
+              analysisType={analysisType}
+              onAnalysisComplete={handleAnalysisComplete}
+              defaultDocumentId={defaultDocumentId}
+              lockDocument={lockDocument}
             />
-          )}
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="quiz" className="space-y-6">
-          {analysisResults && analysisResults.type === 'quiz' && (
-            <QuizInterface
-              quizData={analysisResults}
-              onRestart={() => setActiveTab('form')}
-              documentId={analysisResults.documentId}
-            />
-          )}
-        </TabsContent>
+          <TabsContent value="results" className="space-y-6">
+            {analysisResults && (
+              <AnalysisResults results={analysisResults} onRegenerate={() => setActiveTab('form')} />
+            )}
+          </TabsContent>
 
-        <TabsContent value="flashcards" className="space-y-6">
-          {analysisResults && analysisResults.type === 'flashcards' && (
-            <FlashcardInterface
-              flashcardData={analysisResults}
-              documentId={analysisResults.documentId ?? ''}
-              onRestart={() => setActiveTab('form')}
-            />
-          )}
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="quiz" className="space-y-6">
+            {analysisResults && analysisResults.type === 'quiz' && (
+              <QuizInterface
+                quizData={analysisResults}
+                onRestart={() => setActiveTab('form')}
+                documentId={analysisResults.documentId}
+              />
+            )}
+          </TabsContent>
+
+          <TabsContent value="flashcards" className="space-y-6">
+            {analysisResults && analysisResults.type === 'flashcards' && (
+              <FlashcardInterface
+                flashcardData={analysisResults}
+                documentId={analysisResults.documentId ?? ''}
+                onRestart={() => setActiveTab('form')}
+              />
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
-    </Suspense>
   )
 }
