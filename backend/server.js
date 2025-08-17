@@ -13,7 +13,7 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:3000",       // local dev frontend
-  "https://edu-genie-a8mz8tgop-deepak-shuklas-projects-b71b1dc4.vercel.app/" // your deployed vercel link
+  process.env.FRONTEND_ORIGIN   // your deployed vercel link
 ];
 
 app.use(express.json());
