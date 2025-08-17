@@ -10,10 +10,16 @@ dotenv.config();
 connectDB();
 
 const app = express();
+
+const allowedOrigins = [
+  "http://localhost:3000",       // local dev frontend
+  "https://edu-genie-a8mz8tgop-deepak-shuklas-projects-b71b1dc4.vercel.app/" // your deployed vercel link
+];
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: process.env.FRONTEND_ORIGIN,
+  origin: allowedOrigins,
   credentials: true
 }));
 
