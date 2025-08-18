@@ -1,4 +1,4 @@
-# 🎓 EduGenie - AI-Powered Learning Companion
+# EduGenie - AI-Powered Learning Companion
 
 **Transform your documents into interactive learning experiences with the power of AI**
 
@@ -12,6 +12,7 @@ EduGenie is a modern, full-stack web application that revolutionizes the way stu
 - **🤖 AI-Powered Insights** - Generate summaries, quizzes, and study materials
 - **📊 Interactive Learning** - Flashcards, Q&A sessions, and progress tracking
 - **🔐 Secure Authentication** - JWT-based user management with protected routes
+- **🌗 Light/Dark Mode** - Seamless theme toggle across all pages and components
 - **📱 Responsive Design** - Beautiful UI that works on all devices
 - **⚡ Real-time Processing** - Fast document analysis with progress tracking
 
@@ -28,6 +29,7 @@ frontend/
 │   │   ├── auth/           # Authentication components
 │   │   ├── dashboard/      # Dashboard components
 │   │   ├── documents/      # Document management
+│   │   ├── analysis/       # Analysis, quiz, flashcard, summary components
 │   │   └── ui/             # shadcn/ui components
 │   ├── lib/                # Utilities & API clients
 │   ├── store/              # Zustand state management
@@ -57,6 +59,8 @@ backend/
 - **Forms**: React Hook Form + Zod validation
 - **Icons**: Lucide React
 - **Notifications**: Sonner
+- **Animations**: Framer Motion
+- **Theme**: next-themes (light/dark mode toggle)
 
 ### Backend
 - **Runtime**: Node.js 18+
@@ -158,13 +162,17 @@ POST /api/study/questions/:id   # Generate Q&A
 <div align="center">
 
 ### Landing Page
-![Landing Page](https://via.placeholder.com/800x400/6366f1/ffffff?text=Beautiful+Landing+Page)
+![Landing Page](/assets/welcome.png)
 
 ### Authentication
-![Authentication](https://via.placeholder.com/800x400/10b981/ffffff?text=Secure+Authentication)
+![Authentication](/assets/register.png)
+![Authentication](/assets/login.png)
 
 ### Dashboard
-![Dashboard](https://via.placeholder.com/800x400/f59e0b/ffffff?text=Interactive+Dashboard)
+![Dashboard](/assets/dashboard.png)
+
+### Dark Mode
+![Dark Mode](/assets/dark_mode.png)
 
 </div>
 
@@ -186,5 +194,3 @@ We welcome contributions from the community! Please follow these steps:
 - Write meaningful commit messages
 - Test your changes thoroughly
 - Update documentation as needed
-
----
