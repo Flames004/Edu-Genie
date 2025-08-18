@@ -105,10 +105,10 @@ export default function DocumentLibrary({
     if (!mimeType) return { label: "FILE", color: "bg-purple-100 text-purple-800" };
     
     const type = mimeType.toLowerCase();
-    if (type.includes("pdf")) return { label: "PDF", color: "bg-red-100 text-red-800" };
-    if (type.includes("word") || type.includes("doc")) return { label: "DOCX", color: "bg-blue-100 text-blue-800" };
-    if (type.includes("text") || type.includes("txt")) return { label: "TXT", color: "bg-gray-100 text-gray-800" };
-    return { label: "FILE", color: "bg-purple-100 text-purple-800" };
+    if (type.includes("pdf")) return { label: "PDF", color: "bg-red-100 text-red-800 dark:bg-rose-900 dark:text-rose-200" };
+    if (type.includes("word") || type.includes("doc")) return { label: "DOCX", color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" };
+    if (type.includes("text") || type.includes("txt")) return { label: "TXT", color: "bg-gray-200 text-gray-800 dark:bg-neutral-700 dark:text-neutral-200" };
+    return { label: "FILE", color: "bg-purple-100 text-purple-800 dark:bg-violet-900 dark:text-violet-200" };
   };
 
   if (isLoading) {

@@ -20,16 +20,16 @@ export default function Home() {
   }, [isAuthenticated, router]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-neutral-900 dark:to-neutral-800 text-gray-900 dark:text-neutral-100">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex justify-between items-center">
           <div className="flex items-center space-x-4">
             {/* Logo */}
-            <div className="h-12 w-12 rounded-full border-2 border-[#5A2ECF] flex items-center justify-center">
+            <div className="h-12 w-12 rounded-full border-2 border-[#5A2ECF] dark:border-violet-400 flex items-center justify-center">
               <Image src="/logo-genie-nobg.png" alt="EduGenie Logo" width={40} height={40} />
             </div>
-            <h1 className="text-3xl font-bold text-[#5A2ECF]">EduGenie</h1>
+            <h1 className="text-3xl font-bold text-[#5A2ECF] dark:text-violet-300">EduGenie</h1>
           </div>
           <div className="space-x-4">
             <Link href="/login">
@@ -45,11 +45,11 @@ export default function Home() {
       {/* Hero Section */}
       <main className="container mx-auto px-4 py-12">
         <div className="text-center max-w-4xl mx-auto">
-          <h2 className="text-5xl font-bold text-gray-900 mb-6">
+          <h2 className="text-5xl font-bold text-gray-900 dark:text-neutral-100 mb-6">
             Your AI-Powered
             <span className="text-[#5A2ECF]"> Learning Companion</span>
           </h2>
-          <p className="text-xl text-gray-600 mb-8">
+          <p className="text-xl text-gray-600 dark:text-neutral-300 mb-8">
             Upload documents, generate summaries, create quizzes and flashcards, analyze your study habits, and enjoy a beautiful, modern experience powered by AI.
           </p>
           <div className="flex justify-center space-x-4 mb-12">
@@ -66,28 +66,28 @@ export default function Home() {
           </div>
           
             {/* Smart Summaries Card */}
-            <Card className="bg-gradient-to-br from-green-50 via-green-100 to-teal-50 hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 mb-3">
-              <CardHeader className="text-center">
-                <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 ring-4 ring-green-200">
-                  <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <Card className="bg-gradient-to-br from-green-50 via-green-100 to-teal-50 dark:from-emerald-900 dark:via-neutral-900 dark:to-emerald-800 hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 mb-3">
+              <CardHeader className="text-center dark:bg-neutral-900">
+                <div className="w-14 h-14 bg-green-100 dark:bg-emerald-800 rounded-full flex items-center justify-center mx-auto mb-4 ring-4 ring-green-200 dark:ring-emerald-900">
+                  <svg className="w-7 h-7 text-green-600 dark:text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                   </svg>
                 </div>
-                <CardTitle className="text-lg font-bold text-green-700 mb-2">Smart Summaries</CardTitle>
-                <CardDescription className="text-gray-600">
+                <CardTitle className="text-lg font-bold text-green-700 dark:text-emerald-200 mb-2">Smart Summaries</CardTitle>
+                <CardDescription className="text-gray-600 dark:text-neutral-300">
                   Generate concise, intelligent summaries that capture key concepts
                 </CardDescription>
               </CardHeader>
             </Card>
             {/* Interactive Quizzes Card */}
-            <Card className="bg-gradient-to-br from-purple-50 via-purple-100 to-indigo-50 hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 mb-3">
-              <CardHeader className="text-center">
-                <div className="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 ring-4 ring-purple-200">
-                  <svg className="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <Card className="bg-gradient-to-br from-purple-50 via-purple-100 to-indigo-50 dark:from-violet-900 dark:via-neutral-900 dark:to-violet-800 hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 mb-3">
+              <CardHeader className="text-center dark:bg-neutral-900">
+                <div className="w-14 h-14 bg-purple-100 dark:bg-violet-800 rounded-full flex items-center justify-center mx-auto mb-4 ring-4 ring-purple-200 dark:ring-violet-900">
+                  <svg className="w-7 h-7 text-purple-600 dark:text-violet-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <CardTitle className="text-lg font-bold text-purple-700 mb-2">Interactive Quizzes</CardTitle>
+                <CardTitle className="text-lg font-bold text-purple-700 dark:text-violet-200 mb-2">Interactive Quizzes</CardTitle>
                 <CardDescription className="text-gray-600">
                   Create custom quizzes and flashcards to test your knowledge
                 </CardDescription>

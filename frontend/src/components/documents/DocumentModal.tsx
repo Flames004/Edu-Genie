@@ -73,12 +73,12 @@ export default function DocumentModal({
   };
 
   const getFileTypeBadge = (fileType?: string) => {
-    if (!fileType) return { label: "FILE", color: "bg-purple-100 text-purple-800" };
+  if (!fileType) return { label: "FILE", color: "bg-purple-100 text-purple-800 dark:bg-violet-900 dark:text-violet-200" };
     const lower = fileType.toLowerCase();
-    if (lower.includes("pdf")) return { label: "PDF", color: "bg-red-100 text-red-800" };
-    if (lower.includes("word")) return { label: "DOCX", color: "bg-blue-100 text-blue-800" };
-    if (lower.includes("text")) return { label: "TXT", color: "bg-gray-100 text-gray-800" };
-    return { label: "FILE", color: "bg-purple-100 text-purple-800" };
+  if (lower.includes("pdf")) return { label: "PDF", color: "bg-red-100 text-red-800 dark:bg-rose-900 dark:text-rose-200" };
+  if (lower.includes("word")) return { label: "DOCX", color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" };
+  if (lower.includes("text")) return { label: "TXT", color: "bg-gray-200 text-gray-800 dark:bg-neutral-700 dark:text-neutral-200" };
+  return { label: "FILE", color: "bg-purple-100 text-purple-800 dark:bg-violet-900 dark:text-violet-200" };
   };
 
   const analysisTypes = [
@@ -92,27 +92,27 @@ export default function DocumentModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+  <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden text-gray-900 dark:text-neutral-100">
         <DialogHeader>
           <div className="flex items-center space-x-3">
             <div className="text-2xl">{getFileTypeIcon(document.mimeType)}</div>
             <div className="flex-1 min-w-0">
-              <DialogTitle className="truncate">{document.originalName}</DialogTitle>
+              <DialogTitle className="truncate dark:text-neutral-100">{document.originalName}</DialogTitle>
               <div className="flex items-center space-x-2 mt-1">
-                <Badge className={`${fileTypeBadge.color} text-xs`}>
+                <Badge className={`${fileTypeBadge.color} text-xs dark:text-neutral-100`}>
                   {fileTypeBadge.label}
                 </Badge>
-                <span className="text-sm text-muted-foreground">{formatFileSize(document.fileSize)}</span>
-                <span className="text-sm text-muted-foreground">•</span>
-                <span className="text-sm text-muted-foreground">{formatDate(document.uploadDate)}</span>
+                <span className="text-sm text-muted-foreground dark:text-neutral-100">{formatFileSize(document.fileSize)}</span>
+                <span className="text-sm text-muted-foreground dark:text-neutral-100">•</span>
+                <span className="text-sm text-muted-foreground dark:text-neutral-100">{formatDate(document.uploadDate)}</span>
               </div>
             </div>
           </div>
         </DialogHeader>
 
-        <div className="flex flex-col space-y-4 overflow-hidden">
+          <div className="flex flex-col space-y-4 overflow-hidden text-gray-900 dark:text-neutral-100">
           {/* Tabs */}
-          <div className="flex space-x-1 border-b">
+          <div className="flex space-x-1 border-b dark:border-neutral-700">
             {[
               { key: "overview", label: "Overview", icon: FileIcon },
               { key: "content", label: "Content", icon: Eye },
@@ -123,8 +123,8 @@ export default function DocumentModal({
                 onClick={() => setActiveTab(tab.key as "overview" | "content" | "analyses")}
                 className={`flex items-center space-x-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.key
-                    ? "border-[#6139d0] text-[#5A2ECF]"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
+                    ? "border-[#6139d0] text-[#5A2ECF] dark:border-violet-400 dark:text-violet-300"
+                    : "border-transparent text-gray-500 hover:text-gray-700 dark:text-neutral-400 dark:hover:text-neutral-100"
                 }`}
               >
                 <tab.icon className="h-4 w-4" />
@@ -138,15 +138,15 @@ export default function DocumentModal({
             {activeTab === "overview" && (
               <div className="space-y-6">
                 {/* Document Info */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Document Information</CardTitle>
+                <Card className="bg-white dark:bg-neutral-900">
+                  <CardHeader className="dark:bg-neutral-900">
+                    <CardTitle className="text-lg dark:text-neutral-100">Document Information</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-4 dark:bg-neutral-900">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <h4 className="text-sm font-medium text-gray-500">File Name</h4>
-                        <p className="text-sm font-mono break-all">{document.fileName}</p>
+                        <h4 className="text-sm font-medium text-gray-500 dark:text-neutral-100">File Name</h4>
+                        <p className="text-sm font-mono break-all dark:text-neutral-100">{document.fileName}</p>
                       </div>
                       <div>
                         <h4 className="text-sm font-medium text-gray-500">Original Name</h4>

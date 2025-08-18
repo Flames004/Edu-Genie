@@ -80,8 +80,8 @@ function DocumentsPageContent() {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Documents</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-neutral-100">Documents</h1>
+              <p className="text-muted-foreground dark:text-neutral-300">
                 Upload, manage, and analyze your documents with AI
               </p>
             </div>
@@ -93,7 +93,7 @@ function DocumentsPageContent() {
                 <FileText className="h-4 w-4" />
                 <span>Document Library</span>
                 {data?.allDocuments && (
-                  <span className="ml-2 bg-[#e4dbff] text-[#411ba7] text-xs px-2 py-1 rounded-full">
+                  <span className="ml-2 bg-[#e4dbff] text-[#411ba7] dark:bg-violet-900 dark:text-violet-200 text-xs px-2 py-1 rounded-full">
                     {data.allDocuments.length}
                   </span>
                 )}
@@ -115,14 +115,14 @@ function DocumentsPageContent() {
             </TabsContent>
 
             <TabsContent value="upload" className="space-y-6">
-              <Card>
+              <Card className="bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100">
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
+                  <CardTitle className="flex items-center space-x-2 dark:text-neutral-100">
                     <Plus className="h-5 w-5" />
                     <span>Upload New Documents</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="dark:bg-neutral-900">
                   <FileUpload
                     onUploadComplete={handleUploadComplete}
                     maxFiles={10}
@@ -132,23 +132,23 @@ function DocumentsPageContent() {
               </Card>
 
               {/* Upload Tips */}
-              <Card>
+              <Card className="bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100">
                 <CardHeader>
-                  <CardTitle className="text-lg">Upload Tips</CardTitle>
+                  <CardTitle className="text-lg dark:text-neutral-100">Upload Tips</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="dark:bg-neutral-900">
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <h4 className="font-medium mb-2">📄 Supported Formats</h4>
-                      <ul className="text-sm text-gray-600 space-y-1">
+                      <h4 className="font-medium mb-2 dark:text-neutral-100">📄 Supported Formats</h4>
+                      <ul className="text-sm text-gray-600 dark:text-neutral-300 space-y-1">
                         <li>• PDF documents (.pdf)</li>
                         <li>• Word documents (.docx, .doc)</li>
                         <li>• Text files (.txt)</li>
                       </ul>
                     </div>
                     <div>
-                      <h4 className="font-medium mb-2">🎯 Best Practices</h4>
-                      <ul className="text-sm text-gray-600 space-y-1">
+                      <h4 className="font-medium mb-2 dark:text-neutral-100">🎯 Best Practices</h4>
+                      <ul className="text-sm text-gray-600 dark:text-neutral-300 space-y-1">
                         <li>• Use clear, descriptive filenames</li>
                         <li>• Ensure text is readable (not image-only)</li>
                         <li>• Keep files under 10MB for faster processing</li>

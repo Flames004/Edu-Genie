@@ -163,22 +163,22 @@ export default function FileUpload({
   return (
     <div className="space-y-4">
       {/* Drop Zone */}
-      <Card>
-        <CardContent className="p-6">
+  <Card className="bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100">
+  <CardContent className="p-6 dark:bg-neutral-900 text-gray-900 dark:text-neutral-100">
           <div
             {...getRootProps()}
             className={`
               border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all duration-200
               ${isDragActive 
-                ? "border-[#5A2ECF] bg-[#f2edff] scale-105" 
-                : "border-gray-300 hover:border-[#6640d0] hover:bg-[#f5f1ff]"
+                ? "border-[#5A2ECF] bg-[#f2edff] dark:border-violet-400 dark:bg-neutral-800 scale-105" 
+                : "border-gray-300 hover:border-[#6640d0] hover:bg-[#f5f1ff] dark:border-neutral-700 dark:hover:border-violet-400 dark:hover:bg-neutral-800"
               }
             `}
           >
             <input {...getInputProps()} />
             <div className="space-y-4">
-              <div className="mx-auto w-12 h-12 bg-[#e5dcfe] rounded-full flex items-center justify-center">
-                <Upload className="h-6 w-6 text-[#5A2ECF]" />
+              <div className="mx-auto w-12 h-12 bg-[#e5dcfe] dark:bg-violet-400 rounded-full flex items-center justify-center">
+                <Upload className="h-6 w-6 text-[#5A2ECF] dark:text-neutral-900" />
               </div>
               
               {isDragActive ? (
