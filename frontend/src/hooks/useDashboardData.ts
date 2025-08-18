@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { documentsApi } from "@/lib/api/documents";
 import { getQuizResults, getFlashcardStats } from "@/lib/api/analysis";
 import { Document } from "@/types";
@@ -19,9 +19,12 @@ interface DashboardData {
     };
   };
   recentDocuments: Document[];
+  allDocuments: Document[];
 }
 
 export function useDashboardData() {
+  // Add queryClient for refetch implementation
+  const queryClient = useQueryClient();
   const {
     data: documents,
     isLoading: documentsLoading,
@@ -89,17 +92,73 @@ export function useDashboardData() {
     new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime()
   ).slice(0, 5) || [];
 
+  // All documents (sorted by upload date desc)
+  const allDocuments = documents?.slice().sort((a, b) => 
+    new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime()
+  ) || [];
+
   const dashboardData: DashboardData = {
     stats,
     recentDocuments,
+    allDocuments,
   };
 
+  // Use React Query's queryClient to refetch all relevant queries
+  // Import useQueryClient at the top if not already
+  // Usage: queryClient.invalidateQueries({ queryKey: [...] })
+  // We'll refetch documents, quiz-results, and flashcard-results
+  // Note: This hook should be used in a React component context
+  // so queryClient is available
+  // If not, user should call refetch on individual queries
+  // Here, we provide a refetch that invalidates all three
+  // Import useQueryClient if not already
+  // import { useQueryClient } from "@tanstack/react-query";
+  // Add this line at the top if missing
+  // const queryClient = useQueryClient();
+  // We'll add it here for completeness
+  // If already present, this is a no-op
+  // (If you want, you can move queryClient to the top of the hook)
+  //
+  // Implementation:
+  // refetch: () => {
+  //   queryClient.invalidateQueries({ queryKey: ["documents"] });
+  //   queryClient.invalidateQueries({ queryKey: ["quiz-results"] });
+  //   queryClient.invalidateQueries({ queryKey: ["flashcard-results"] });
+  // },
+  //
+  // Let's add this:
+  //
+  // At the top of the hook:
+  // const queryClient = useQueryClient();
+  //
+  // In the return:
+  // refetch: () => {
+  //   queryClient.invalidateQueries({ queryKey: ["documents"] });
+  //   queryClient.invalidateQueries({ queryKey: ["quiz-results"] });
+  //   queryClient.invalidateQueries({ queryKey: ["flashcard-results"] });
+  // },
+
+  // Add useQueryClient import if missing
+  // import { useQueryClient } from "@tanstack/react-query";
+
+  // Add queryClient
+  // (If already present, this is a no-op)
+  // const queryClient = useQueryClient();
+
+  // Implementation:
+  //
+  // Add at the top of the hook:
+  // const queryClient = useQueryClient();
+
+  // In the return:
   return {
     data: dashboardData,
     isLoading: documentsLoading || quizLoading || flashcardLoading,
     error: documentsError || quizError || flashcardError,
     refetch: () => {
-      // TODO: Implement refetch for documents query
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+      queryClient.invalidateQueries({ queryKey: ["quiz-results"] });
+      queryClient.invalidateQueries({ queryKey: ["flashcard-results"] });
     },
   };
 }

@@ -216,7 +216,7 @@ export default function DocumentModal({
             )}
 
             {activeTab === "analyses" && (
-              <div className="space-y-4">
+              <ScrollArea className="space-y-4 max-h-[60vh] pr-2">
                 {document.analyses && document.analyses.length > 0 ? (
                   document.analyses.map((analysis) => (
                     <Card key={analysis._id}>
@@ -259,7 +259,7 @@ export default function DocumentModal({
                     </CardContent>
                   </Card>
                 )}
-              </div>
+              </ScrollArea>
             )}
           </ScrollArea>
 

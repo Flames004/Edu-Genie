@@ -92,9 +92,9 @@ function DocumentsPageContent() {
               <TabsTrigger value="library" className="flex items-center space-x-2">
                 <FileText className="h-4 w-4" />
                 <span>Document Library</span>
-                {data?.recentDocuments && (
+                {data?.allDocuments && (
                   <span className="ml-2 bg-[#e4dbff] text-[#411ba7] text-xs px-2 py-1 rounded-full">
-                    {data.recentDocuments.length}
+                    {data.allDocuments.length}
                   </span>
                 )}
               </TabsTrigger>
@@ -106,7 +106,7 @@ function DocumentsPageContent() {
 
             <TabsContent value="library" className="space-y-6">
               <DocumentLibrary
-                documents={data?.recentDocuments || []}
+                documents={data?.allDocuments || []}
                 isLoading={isLoading}
                 onViewDocument={handleViewDocument}
                 onDeleteDocument={handleDeleteDocument}
