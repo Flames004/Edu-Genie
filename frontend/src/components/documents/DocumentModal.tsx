@@ -145,27 +145,27 @@ export default function DocumentModal({
                   <CardContent className="space-y-4 dark:bg-neutral-900">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <h4 className="text-sm font-medium text-gray-500 dark:text-neutral-100">File Name</h4>
+                        <h4 className="text-sm font-medium text-gray-500 dark:text-neutral-400">File Name</h4>
                         <p className="text-sm font-mono break-all dark:text-neutral-100">{document.fileName}</p>
                       </div>
                       <div>
-                        <h4 className="text-sm font-medium text-gray-500">Original Name</h4>
+                        <h4 className="text-sm font-medium text-gray-500 dark:text-neutral-400">Original Name</h4>
                         <p className="text-sm">{document.originalName}</p>
                       </div>
                       <div>
-                        <h4 className="text-sm font-medium text-gray-500">File Size</h4>
+                        <h4 className="text-sm font-medium text-gray-500 dark:text-neutral-400">File Size</h4>
                         <p className="text-sm">{formatFileSize(document.fileSize)}</p>
                       </div>
                       <div>
-                        <h4 className="text-sm font-medium text-gray-500">Upload Date</h4>
+                        <h4 className="text-sm font-medium text-gray-500 dark:text-neutral-400">Upload Date</h4>
                         <p className="text-sm">{formatDate(document.uploadDate)}</p>
                       </div>
                       <div>
-                        <h4 className="text-sm font-medium text-gray-500">Text Length</h4>
+                        <h4 className="text-sm font-medium text-gray-500 dark:text-neutral-400">Text Length</h4>
                         <p className="text-sm">{document.textLength?.toLocaleString()} characters</p>
                       </div>
                       <div>
-                        <h4 className="text-sm font-medium text-gray-500">Estimated Pages</h4>
+                        <h4 className="text-sm font-medium text-gray-500 dark:text-neutral-400">Estimated Pages</h4>
                         <p className="text-sm">{document.estimatedPages || "N/A"}</p>
                       </div>
                     </div>
@@ -223,14 +223,14 @@ export default function DocumentModal({
                       <CardHeader>
                         <div className="flex items-center justify-between">
                           <CardTitle className="text-lg capitalize">{analysis.taskType}</CardTitle>
-                          <div className="flex items-center space-x-2 text-sm text-gray-500">
+                          <div className="flex items-center space-x-2 text-sm text-neutral-500">
                             <Calendar className="h-4 w-4" />
                             <span>{formatDate(analysis.timestamp)}</span>
                           </div>
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <div className="text-sm text-gray-700 whitespace-pre-wrap">
+                        <div className="text-sm text-muted-foreground whitespace-pre-wrap">
                           {analysis.result || "No content available"}
                         </div>
                       </CardContent>

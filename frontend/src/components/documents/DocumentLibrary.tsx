@@ -263,7 +263,7 @@ export default function DocumentLibrary({
                 </CardHeader>
                 
                 <CardContent className="pt-0">
-                  <div className="space-y-2 text-sm text-gray-600">
+                  <div className="space-y-2 text-sm text-muted-foreground">
                     <div className="flex items-center space-x-2">
                       <Calendar className="h-3 w-3" />
                       <span>{formatDate(document.uploadDate)}</span>
