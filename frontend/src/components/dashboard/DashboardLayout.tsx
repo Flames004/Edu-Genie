@@ -84,9 +84,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   priority
                 />
                 <button
-                  className="text-2xl font-bold text-[#5A2ECF] hover:text-[#4826a7] dark:text-violet-300 dark:hover:text-violet-200 transition-colors focus:outline-none"
+                  className="text-2xl font-semibold text-[#5A2ECF] transition-all duration-200 focus:outline-none
+    hover:text-transparent hover:[-webkit-text-stroke:2px_#5A2ECF] hover:[text-stroke:2px_#5A2ECF]"
                   onClick={() => router.push("/dashboard")}
                   title="Go to Dashboard"
+                  style={{
+                    WebkitTextStroke: "1px #5A2ECF",
+                  }}
                 >
                   EduGenie
                 </button>
@@ -130,13 +134,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem disabled>
                     <User className="mr-2 h-4 w-4" />
                     Profile
+                    <span className="ml-auto text-xs text-muted-foreground dark:text-neutral-400">Coming soon</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem disabled>
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
+                    <span className="ml-auto text-xs text-muted-foreground dark:text-neutral-400">Coming soon</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
@@ -160,15 +166,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 return (
                   <Button
                     key={item.label}
-                    variant={isActive ? "default" : "ghost"}
-                    className={`w-full justify-start ${
-                      isActive
-                        ? "bg-[#5A2ECF] text-white hover:bg-[#4826a7]" 
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                    }`}
+                    variant="ghost"
+                    className={`w-full justify-start transition-colors
+              ${
+                isActive
+                  ? "bg-gray-100 dark:bg-[#232326] text-[#5A2ECF] dark:text-violet-300 font-semibold"
+                  : "text-gray-700 dark:text-neutral-300 hover:bg-gray-100 dark:hover:bg-[#232326]/80"
+              }`}
                     onClick={() => router.push(item.href)}
                   >
-                    <item.icon className="mr-2 h-4 w-4" />
+                    <item.icon className={`mr-2 h-4 w-4 ${isActive ? "text-[#5A2ECF] dark:text-violet-300" : "text-gray-500 dark:text-neutral-400"}`} />
                     {item.label}
                   </Button>
                 );

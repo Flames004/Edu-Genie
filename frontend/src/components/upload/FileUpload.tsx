@@ -227,7 +227,7 @@ export default function FileUpload({
                     <div className="flex items-center space-x-3">
                       {getStatusIcon(fileWithProgress.status)}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium text-gray-900 truncate dark:text-neutral-200">
                           {fileWithProgress.file.name}
                         </p>
                         <p className="text-xs text-gray-500">

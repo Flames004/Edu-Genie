@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button'
 import { AnalysisForm, AnalysisResults, QuizInterface, FlashcardInterface } from '@/components/analysis'
 import { useQuery } from '@tanstack/react-query'
 import { getAnalysisTypes, AnalysisResult, AnalysisType } from '@/lib/api/analysis'
+import { useTheme } from "next-themes"
+import { Sun, Moon } from "lucide-react"
 
 const analysisIcons: Record<string, typeof Brain> = {
   summary: Brain,
@@ -40,6 +42,8 @@ function AnalysisPageContent() {
     queryFn: getAnalysisTypes,
   })
 
+  const { theme, setTheme } = useTheme()
+
   useEffect(() => {
     const type = searchParams.get('type')
     if (type && analysisTypes?.some((t: AnalysisType) => t.type === type)) {
@@ -62,12 +66,12 @@ function AnalysisPageContent() {
   const IconComponent = analysisIcons[analysisType] || Brain
 
   return (
-  <div className="min-h-screen bg-background text-gray-900 dark:text-neutral-100">
+    <div className="min-h-screen bg-background text-gray-900 dark:text-neutral-100">
       <div className="container mx-auto px-4 py-8 space-y-8">
         {/* Header Section */}
         <div className="space-y-6">
-          {/* Back Button */}
-          <div className="flex items-center -mt-4">
+          {/* Back Button and Theme Toggle */}
+          <div className="flex items-center -mt-4 justify-between">
             <Button
               variant="ghost"
               size="sm"
@@ -76,6 +80,19 @@ function AnalysisPageContent() {
             >
               <ArrowLeft className="h-4 w-4 dark:text-neutral-100" />
               <span>Back to Dashboard</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="ml-2"
+            >
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5 text-yellow-500 dark:text-yellow-400" />
+              ) : (
+                <Moon className="h-5 w-5 text-gray-500 dark:text-neutral-200" />
+              )}
             </Button>
           </div>
 

@@ -68,13 +68,13 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-neutral-900 dark:to-neutral-800 p-4">
+      <Card className="w-full max-w-md bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 shadow-lg">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
+          <CardTitle className="text-2xl font-bold text-center text-[#5A2ECF] dark:text-violet-300">
             Join EduGenie
           </CardTitle>
-          <CardDescription className="text-center">
+          <CardDescription className="text-center text-gray-600 dark:text-neutral-300">
             Create your account to start analyzing documents
           </CardDescription>
         </CardHeader>
@@ -87,13 +87,13 @@ export default function RegisterForm() {
             )}
             
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name" className="text-gray-900 dark:text-gray-100">Full Name</Label>
               <Input
                 id="name"
                 type="text"
                 placeholder="Enter your full name"
                 {...register("name")}
-                className={errors.name ? "border-red-500" : ""}
+                className={`bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 ${errors.name ? "border-red-500" : ""}`}
               />
               {errors.name && (
                 <p className="text-sm text-red-500">{errors.name.message}</p>
@@ -101,13 +101,13 @@ export default function RegisterForm() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-gray-900 dark:text-gray-100">Email</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="Enter your email"
                 {...register("email")}
-                className={errors.email ? "border-red-500" : ""}
+                className={`bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 ${errors.email ? "border-red-500" : ""}`}
               />
               {errors.email && (
                 <p className="text-sm text-red-500">{errors.email.message}</p>
@@ -115,12 +115,12 @@ export default function RegisterForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-gray-900 dark:text-gray-100">Password</Label>
               <PasswordInput
                 id="password"
                 placeholder="Create a password"
                 {...register("password")}
-                className={errors.password ? "border-red-500" : ""}
+                className={`bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 ${errors.password ? "border-red-500" : ""}`}
               />
               {errors.password && (
                 <p className="text-sm text-red-500">{errors.password.message}</p>
@@ -128,12 +128,12 @@ export default function RegisterForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-gray-900 dark:text-gray-100">Confirm Password</Label>
               <PasswordInput
                 id="confirmPassword"
                 placeholder="Confirm your password"
                 {...register("confirmPassword")}
-                className={errors.confirmPassword ? "border-red-500" : ""}
+                className={`bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 ${errors.confirmPassword ? "border-red-500" : ""}`}
               />
               {errors.confirmPassword && (
                 <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
@@ -142,7 +142,7 @@ export default function RegisterForm() {
 
             <Button
               type="submit"
-              className="w-full"
+              className="w-full bg-[#5A2ECF] dark:bg-violet-700 text-white dark:text-neutral-100 hover:bg-[#4826a7] dark:hover:bg-violet-800"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Creating account..." : "Create Account"}
@@ -150,11 +150,11 @@ export default function RegisterForm() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-neutral-300">
               Already have an account?{" "}
               <Link 
                 href="/login" 
-                className="font-medium text-blue-600 hover:text-blue-500"
+                className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300"
               >
                 Sign in
               </Link>
