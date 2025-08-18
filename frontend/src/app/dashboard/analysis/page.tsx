@@ -62,7 +62,7 @@ function AnalysisPageContent() {
   const IconComponent = analysisIcons[analysisType] || Brain
 
   return (
-    <div className="min-h-screen bg-background">
+  <div className="min-h-screen bg-background text-gray-900 dark:text-neutral-100">
       <div className="container mx-auto px-4 py-8 space-y-8">
         {/* Header Section */}
         <div className="space-y-6">
@@ -72,9 +72,9 @@ function AnalysisPageContent() {
               variant="ghost"
               size="sm"
               onClick={() => router.push('/dashboard')}
-              className="flex items-center space-x-2 hover:bg-muted/50"
+              className="flex items-center space-x-2 hover:bg-muted/50 dark:text-neutral-100"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="h-4 w-4 dark:text-neutral-100" />
               <span>Back to Dashboard</span>
             </Button>
           </div>
@@ -86,10 +86,10 @@ function AnalysisPageContent() {
                 <IconComponent className="h-8 w-8 text-primary" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold tracking-tight">
+                <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-neutral-100">
                   {currentAnalysisType?.name || 'AI Analysis'}
                 </h1>
-                <p className="text-muted-foreground mt-1">
+                <p className="text-muted-foreground mt-1 dark:text-neutral-300">
                   {currentAnalysisType?.description || 'Generate AI-powered insights from your documents'}
                 </p>
               </div>
@@ -99,10 +99,10 @@ function AnalysisPageContent() {
 
         {/* Analysis Type Selector */}
         {analysisTypes && (
-          <Card className="shadow-sm">
+          <Card className="shadow-sm bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100">
             <CardHeader>
-              <CardTitle>Choose Analysis Type</CardTitle>
-              <CardDescription>
+              <CardTitle className="dark:text-neutral-100">Choose Analysis Type</CardTitle>
+              <CardDescription className="dark:text-neutral-300">
                 Select the type of analysis you want to perform on your document
               </CardDescription>
             </CardHeader>
@@ -116,28 +116,28 @@ function AnalysisPageContent() {
                       key={type.type}
                       className={`cursor-pointer transition-all hover:shadow-md border-2 ${
                         isSelected
-                          ? 'border-primary bg-primary/5 shadow-md'
-                          : 'border-border hover:border-primary/50'
-                      }`}
+                          ? 'border-primary bg-primary/5 shadow-md dark:border-violet-400 dark:bg-neutral-900'
+                          : 'border-border hover:border-primary/50 dark:border-neutral-700 dark:bg-neutral-900'
+                      } text-gray-900 dark:text-neutral-100`}
                       onClick={() => {
                         setAnalysisType(type.type)
                         setAnalysisResults(null)
                         setActiveTab('form')
                       }}
                     >
-                      <CardContent className="p-4 flex flex-col items-center text-center space-y-3 min-h-[160px] justify-between">
+                      <CardContent className="p-4 flex flex-col items-center text-center space-y-3 min-h-[160px] justify-between dark:bg-neutral-900">
                         <div
                           className={`p-3 rounded-full ${
-                            isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                            isSelected ? 'bg-primary text-primary-foreground dark:bg-violet-400 dark:text-neutral-900' : 'bg-muted dark:bg-neutral-800 dark:text-neutral-100'
                           }`}
                         >
                           <Icon className="h-6 w-6" />
                         </div>
                         <div className="space-y-2 flex-1 flex flex-col justify-center">
-                          <h3 className={`font-semibold text-sm leading-tight ${isSelected ? 'text-primary' : ''}`}>
+                          <h3 className={`font-semibold text-sm leading-tight ${isSelected ? 'text-primary dark:text-violet-300' : 'dark:text-neutral-100'}`}>
                             {type.name}
                           </h3>
-                          <p className="text-xs text-muted-foreground leading-relaxed">{type.description}</p>
+                          <p className="text-xs text-muted-foreground leading-relaxed dark:text-neutral-300">{type.description}</p>
                         </div>
                       </CardContent>
                     </Card>

@@ -188,7 +188,7 @@ export default function FileUpload({
                 </div>
               ) : (
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-200">
                     Drag & drop your documents here
                   </h3>
                   <p className="text-sm text-gray-600">

@@ -192,25 +192,25 @@ export function QuizInterface({ quizData, onRestart, documentId }: QuizInterface
         <Card>
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
-              <div className="p-4 rounded-full bg-primary/10">
+              <div className="p-4 rounded-full bg-primary/10 dark:bg-primary/20">
                 <Trophy className="h-8 w-8 text-primary" />
               </div>
             </div>
-            <CardTitle className="text-2xl">Quiz Complete!</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-2xl text-gray-900 dark:text-gray-100">Quiz Complete!</CardTitle>
+            <CardDescription className="text-muted-foreground dark:text-gray-400">
               Here are your results
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="text-center space-y-4">
-              <div className={cn("text-4xl font-bold", getScoreColor(score.percentage))}>
+              <div className={cn("text-4xl font-bold", getScoreColor(score.percentage), "dark:text-gray-100")}>
                 {score.percentage}%
               </div>
               <div className="space-y-2">
-                <Badge variant={getScoreBadgeVariant(score.percentage)} className="text-sm px-3 py-1">
+                <Badge variant={getScoreBadgeVariant(score.percentage)} className="text-sm px-3 py-1 dark:text-gray-100">
                   {score.correct} out of {score.total} correct
                 </Badge>
-                <div className="flex items-center justify-center space-x-4 text-sm text-muted-foreground">
+                <div className="flex items-center justify-center space-x-4 text-sm text-muted-foreground dark:text-gray-400">
                   <div className="flex items-center space-x-1">
                     <Clock className="h-4 w-4" />
                     <span>{Math.floor(duration / 60)}:{(duration % 60).toString().padStart(2, '0')}</span>
@@ -230,12 +230,11 @@ export function QuizInterface({ quizData, onRestart, documentId }: QuizInterface
             </div>
           </CardContent>
         </Card>
-
         {/* Question Review */}
         <Card>
           <CardHeader>
-            <CardTitle>Question Review</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-gray-900 dark:text-gray-100">Question Review</CardTitle>
+            <CardDescription className="text-muted-foreground dark:text-gray-400">
               Review your answers and see explanations
             </CardDescription>
           </CardHeader>
@@ -249,12 +248,12 @@ export function QuizInterface({ quizData, onRestart, documentId }: QuizInterface
                   <div className="flex items-start space-x-3">
                     <div className={cn(
                       "flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-medium",
-                      isCorrect ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
+                      isCorrect ? "bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400" : "bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400"
                     )}>
                       {isCorrect ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
                     </div>
                     <div className="flex-1 space-y-3">
-                      <p className="font-medium">{question.question}</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{question.question}</p>
                       <div className="space-y-2">
                         {question.options.map((option, optionIndex) => {
                           const isUserAnswer = userAnswer === optionIndex
@@ -265,16 +264,16 @@ export function QuizInterface({ quizData, onRestart, documentId }: QuizInterface
                               key={optionIndex}
                               className={cn(
                                 "p-3 rounded-lg border-2",
-                                isCorrectAnswer && "border-green-500 bg-green-50",
-                                isUserAnswer && !isCorrectAnswer && "border-red-500 bg-red-50",
-                                !isCorrectAnswer && !isUserAnswer && "border-gray-200"
+                                isCorrectAnswer && "border-green-500 bg-green-50 dark:bg-green-900",
+                                isUserAnswer && !isCorrectAnswer && "border-red-500 bg-red-50 dark:bg-red-900",
+                                !isCorrectAnswer && !isUserAnswer && "border-gray-200 dark:border-gray-700"
                               )}
                             >
                               <div className="flex items-center space-x-2">
-                                <span className="font-medium text-sm">
+                                <span className="font-medium text-sm text-gray-900 dark:text-gray-100">
                                   {String.fromCharCode(65 + optionIndex)}.
                                 </span>
-                                <span className="text-sm">{option}</span>
+                                <span className="text-sm text-gray-900 dark:text-gray-100">{option}</span>
                                 {isCorrectAnswer && <CheckCircle className="h-4 w-4 text-green-600 ml-auto" />}
                                 {isUserAnswer && !isCorrectAnswer && <XCircle className="h-4 w-4 text-red-600 ml-auto" />}
                               </div>
@@ -283,8 +282,8 @@ export function QuizInterface({ quizData, onRestart, documentId }: QuizInterface
                         })}
                       </div>
                       {question.explanation && (
-                        <div className="p-3 bg-blue-50 rounded-lg">
-                          <p className="text-sm text-blue-800">
+                        <div className="p-3 bg-blue-50 dark:bg-blue-900 rounded-lg">
+                          <p className="text-sm text-blue-800 dark:text-blue-300">
                             <strong>Explanation:</strong> {question.explanation}
                           </p>
                         </div>
@@ -342,10 +341,10 @@ export function QuizInterface({ quizData, onRestart, documentId }: QuizInterface
                 key={index}
                 onClick={() => handleAnswerSelect(index)}
                 className={cn(
-                  "w-full p-4 text-left rounded-lg border-2 transition-all hover:border-primary/50",
+                  "w-full p-4 text-left rounded-lg border-2 transition-all",
                   userAnswer === index 
-                    ? "border-primary bg-primary/5" 
-                    : "border-gray-200 hover:bg-gray-50"
+                    ? "border-primary bg-primary/5 dark:bg-primary/20" 
+                    : "border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-[#232326]"
                 )}
               >
                 <div className="flex items-center space-x-3">
@@ -353,11 +352,11 @@ export function QuizInterface({ quizData, onRestart, documentId }: QuizInterface
                     "flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center text-sm font-medium",
                     userAnswer === index
                       ? "border-primary bg-primary text-primary-foreground"
-                      : "border-gray-300"
+                      : "border-gray-300 dark:border-gray-700"
                   )}>
                     {String.fromCharCode(65 + index)}
                   </div>
-                  <span className="text-sm">{option}</span>
+                  <span className="text-sm text-gray-900 dark:text-gray-100">{option}</span>
                 </div>
               </button>
             ))}

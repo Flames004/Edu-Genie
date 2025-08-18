@@ -324,24 +324,24 @@ export function FlashcardInterface({ flashcardData, documentId, onRestart }: Fla
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="flex items-center space-x-2">
+              <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
                 <Zap className="h-5 w-5" />
                 <span>Study Flashcards</span>
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-muted-foreground dark:text-gray-400">
                 Card {session.currentCard + 1} of {flashcards.length} • {formatStudyTime(studyTime)} elapsed
               </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
-              <Badge variant="outline" className="flex items-center space-x-1">
+              <Badge variant="outline" className="flex items-center space-x-1 dark:text-gray-100">
                 <Clock className="h-3 w-3" />
                 <span>{formatStudyTime(studyTime)}</span>
               </Badge>
-              <Badge variant="outline" className="flex items-center space-x-1">
+              <Badge variant="outline" className="flex items-center space-x-1 dark:text-gray-100">
                 <CheckCircle className="h-3 w-3 text-green-600" />
                 <span>{masteredCount} mastered</span>
               </Badge>
-              <Badge variant="outline" className="flex items-center space-x-1">
+              <Badge variant="outline" className="flex items-center space-x-1 dark:text-gray-100">
                 <XCircle className="h-3 w-3 text-red-600" />
                 <span>{difficultCount} difficult</span>
               </Badge>
@@ -356,6 +356,7 @@ export function FlashcardInterface({ flashcardData, documentId, onRestart }: Fla
                 variant="outline"
                 size="sm"
                 onClick={handleShuffle}
+                className="dark:text-gray-100"
               >
                 <Shuffle className="mr-2 h-4 w-4" />
                 {session.shuffled ? 'Original Order' : 'Shuffle'}
@@ -364,6 +365,7 @@ export function FlashcardInterface({ flashcardData, documentId, onRestart }: Fla
                 variant="outline"
                 size="sm"
                 onClick={handleReset}
+                className="dark:text-gray-100"
               >
                 <RotateCcw className="mr-2 h-4 w-4" />
                 Reset
@@ -372,6 +374,7 @@ export function FlashcardInterface({ flashcardData, documentId, onRestart }: Fla
                 variant="outline"
                 size="sm"
                 onClick={handleDownload}
+                className="dark:text-gray-100"
               >
                 <Download className="mr-2 h-4 w-4" />
                 Download
@@ -380,18 +383,18 @@ export function FlashcardInterface({ flashcardData, documentId, onRestart }: Fla
                 variant="outline"
                 size="sm"
                 onClick={onRestart}
+                className="dark:text-gray-100"
               >
                 <Brain className="mr-2 h-4 w-4" />
                 New Set
               </Button>
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-muted-foreground dark:text-gray-400">
               <div>Shortcuts: Space (flip) • ← → (navigate) • 1 (difficult) • 2 (mastered) • D (download)</div>
             </div>
           </div>
         </CardContent>
       </Card>
-
       {/* Flashcard */}
       <div className="flex justify-center">
         <div className="w-full max-w-2xl">
@@ -399,8 +402,8 @@ export function FlashcardInterface({ flashcardData, documentId, onRestart }: Fla
             className={cn(
               "min-h-[400px] cursor-pointer transition-all duration-300 hover:shadow-lg",
               session.showBack 
-                ? "bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200" 
-                : "bg-gradient-to-br from-gray-50 to-gray-100/50 border-gray-200",
+                ? "bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900 dark:to-blue-950 border-blue-200 dark:border-blue-900" 
+                : "bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-[#232326] dark:to-[#18181b] border-gray-200 dark:border-gray-700",
               session.masteredCards.has(session.currentCard) && "ring-2 ring-green-500",
               session.difficultCards.has(session.currentCard) && "ring-2 ring-red-500"
             )}
@@ -408,11 +411,11 @@ export function FlashcardInterface({ flashcardData, documentId, onRestart }: Fla
           >
             <CardContent className="flex items-center justify-center min-h-[400px] p-8">
               <div className="text-center space-y-6">
-                <p className="text-xl leading-relaxed font-medium">
+                <p className="text-xl leading-relaxed font-medium text-gray-900 dark:text-gray-100">
                   {session.showBack ? currentCard.back : currentCard.front}
                 </p>
                 {!session.showBack && (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground dark:text-gray-400">
                     Click to reveal answer
                   </p>
                 )}
@@ -421,7 +424,6 @@ export function FlashcardInterface({ flashcardData, documentId, onRestart }: Fla
           </Card>
         </div>
       </div>
-
       {/* Navigation and Actions */}
       <div className="space-y-4">
         {/* Navigation */}
@@ -429,43 +431,42 @@ export function FlashcardInterface({ flashcardData, documentId, onRestart }: Fla
           <Button
             variant="outline"
             onClick={handlePrevious}
+            className="dark:text-gray-100"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Previous
           </Button>
-          
           <Button
             variant="outline"
             onClick={handleFlip}
+            className="dark:text-gray-100"
           >
             {session.showBack ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
             Flip Card
           </Button>
-          
           <Button
             variant="outline"
             onClick={handleNext}
+            className="dark:text-gray-100"
           >
             Next
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
-
         {/* Difficulty Actions */}
         {session.showBack && (
           <div className="flex justify-center space-x-4">
             <Button
               variant="outline"
               onClick={handleDifficult}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              className="text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900"
             >
               <XCircle className="mr-2 h-4 w-4" />
               Difficult
             </Button>
-            
             <Button
               onClick={handleMastered}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-800 text-white"
             >
               <CheckCircle className="mr-2 h-4 w-4" />
               Mastered
@@ -473,40 +474,38 @@ export function FlashcardInterface({ flashcardData, documentId, onRestart }: Fla
           </div>
         )}
       </div>
-
       {/* Study Progress */}
       <Card>
         <CardHeader>
-          <CardTitle>Study Progress</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-gray-900 dark:text-gray-100">Study Progress</CardTitle>
+          <CardDescription className="text-muted-foreground dark:text-gray-400">
             Track your learning progress
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
             <div className="text-center space-y-2">
-              <div className="text-2xl font-bold text-gray-600">
+              <div className="text-2xl font-bold text-gray-600 dark:text-gray-300">
                 {flashcards.length - masteredCount - difficultCount}
               </div>
-              <p className="text-sm text-muted-foreground">Not Reviewed</p>
+              <p className="text-sm text-muted-foreground dark:text-gray-400">Not Reviewed</p>
             </div>
             <div className="text-center space-y-2">
-              <div className="text-2xl font-bold text-red-600">
+              <div className="text-2xl font-bold text-red-600 dark:text-red-400">
                 {difficultCount}
               </div>
-              <p className="text-sm text-muted-foreground">Need Practice</p>
+              <p className="text-sm text-muted-foreground dark:text-gray-400">Need Practice</p>
             </div>
             <div className="text-center space-y-2">
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {masteredCount}
               </div>
-              <p className="text-sm text-muted-foreground">Mastered</p>
+              <p className="text-sm text-muted-foreground dark:text-gray-400">Mastered</p>
             </div>
           </div>
-          
           {masteredCount + difficultCount > 0 && (
             <div className="mt-4">
-              <div className="text-sm text-center text-muted-foreground mb-2">
+              <div className="text-sm text-center text-muted-foreground dark:text-gray-400 mb-2">
                 Completion: {Math.round(((masteredCount + difficultCount) / flashcards.length) * 100)}%
               </div>
               <Progress 
@@ -515,21 +514,30 @@ export function FlashcardInterface({ flashcardData, documentId, onRestart }: Fla
               />
             </div>
           )}
-
           {/* Completion Celebration */}
           {masteredCount === flashcards.length && (
-            <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+            <div className="mt-6 p-4 bg-green-200 dark:bg-green-900 rounded-lg border border-green-400 dark:border-green-700">
               <div className="text-center space-y-2">
-                <Target className="h-8 w-8 text-green-600 mx-auto" />
-                <h3 className="font-semibold text-green-800">🎉 Congratulations!</h3>
-                <p className="text-sm text-green-700">
+                <Target className="h-8 w-8 text-green-600 dark:text-green-400 mx-auto" />
+                <h3 className="font-semibold text-green-800 dark:text-green-300">🎉 Congratulations!</h3>
+                <p className="text-sm text-green-700 dark:text-green-200">
                   You&apos;ve mastered all {flashcards.length} flashcards in {formatStudyTime(studyTime)}!
                 </p>
                 <div className="flex justify-center space-x-2 mt-4">
-                  <Button size="sm" onClick={handleReset} variant="outline">
+                  <Button
+                    size="sm"
+                    onClick={handleReset}
+                    variant="outline"
+                    className="text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-[#232326] hover:bg-gray-200 dark:hover:bg-[#232326]/80"
+                  >
                     Study Again
                   </Button>
-                  <Button size="sm" onClick={onRestart}>
+                  <Button
+                    size="sm"
+                    onClick={onRestart}
+                    variant="outline"
+                    className="text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-[#232326] hover:bg-gray-200 dark:hover:bg-[#232326]/80"
+                  >
                     Create New Set
                   </Button>
                 </div>

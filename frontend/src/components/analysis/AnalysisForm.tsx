@@ -160,48 +160,47 @@ export function AnalysisForm({ analysisType, onAnalysisComplete, defaultDocument
   const isLoading = textMutation.isPending || fileMutation.isPending || documentMutation.isPending
 
   return (
-    <Card>
+    <Card className="bg-white dark:bg-[#18181b] border border-muted dark:border-[#232326]">
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Brain className="h-5 w-5" />
+        <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
+          <Brain className="h-5 w-5 text-primary dark:text-primary" />
           <span>Generate Analysis</span>
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-muted-foreground dark:text-gray-400">
           Choose your input method and generate AI-powered insights
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Input Method Selection */}
         <div className="space-y-2">
-          <Label>Input Method</Label>
+          <Label className="text-gray-900 dark:text-gray-100">Input Method</Label>
           <Tabs value={inputMethod} onValueChange={(value) => setInputMethod(value as 'text' | 'file' | 'document')}>
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="text" className="flex items-center space-x-2">
+            <TabsList className="grid w-full grid-cols-3 bg-muted dark:bg-[#232326]">
+              <TabsTrigger value="text" className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
                 <FileText className="h-4 w-4" />
                 <span>Text</span>
               </TabsTrigger>
-              <TabsTrigger value="file" className="flex items-center space-x-2">
+              <TabsTrigger value="file" className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
                 <Upload className="h-4 w-4" />
                 <span>Upload File</span>
               </TabsTrigger>
-              <TabsTrigger value="document" className="flex items-center space-x-2">
+              <TabsTrigger value="document" className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
                 <Brain className="h-4 w-4" />
                 <span>Saved Document</span>
               </TabsTrigger>
             </TabsList>
-
             <TabsContent value="text" className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="text-input">Enter Text</Label>
+                <Label htmlFor="text-input" className="text-gray-900 dark:text-gray-100">Enter Text</Label>
                 <Textarea
                   id="text-input"
                   placeholder="Paste or type the text you want to analyze..."
                   value={textInput}
                   onChange={(e) => setTextInput(e.target.value)}
                   rows={8}
-                  className="resize-none"
+                  className="resize-none bg-white dark:bg-[#232326] text-gray-900 dark:text-gray-100 border border-muted dark:border-[#232326]"
                 />
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground dark:text-gray-400">
                   {textInput.length} characters
                 </p>
               </div>
@@ -223,52 +222,50 @@ export function AnalysisForm({ analysisType, onAnalysisComplete, defaultDocument
                 )}
               </Button>
             </TabsContent>
-
             <TabsContent value="file" className="space-y-4">
               <div
                 {...getRootProps()}
                 className={cn(
-                  "border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center cursor-pointer transition-colors",
-                  isDragActive && "border-primary bg-primary/5",
-                  acceptedFiles.length > 0 && "border-green-500 bg-green-50"
+                  "border-2 border-dashed border-muted-foreground/25 dark:border-gray-700 rounded-lg p-8 text-center cursor-pointer transition-colors bg-white dark:bg-[#232326]",
+                  isDragActive && "border-primary bg-primary/5 dark:bg-primary/10",
+                  acceptedFiles.length > 0 && "border-green-500 bg-green-50 dark:bg-green-900"
                 )}
               >
                 <input {...getInputProps()} />
-                <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <Upload className="mx-auto h-12 w-12 text-muted-foreground dark:text-gray-400 mb-4" />
                 {acceptedFiles.length > 0 ? (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-green-600">
+                    <p className="text-sm font-medium text-green-600 dark:text-green-400">
                       File selected: {acceptedFiles[0].name}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground dark:text-gray-400">
                       {(acceptedFiles[0].size / 1024 / 1024).toFixed(2)} MB
                     </p>
                   </div>
                 ) : isDragActive ? (
-                  <p className="text-sm text-primary">Drop the file here...</p>
+                  <p className="text-sm text-primary dark:text-primary">Drop the file here...</p>
                 ) : (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       Drag & drop a file here, or click to select
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground dark:text-gray-400">
                       Supports PDF, DOC, DOCX, TXT (max 10MB)
                     </p>
                   </div>
                 )}
               </div>
             </TabsContent>
-
             <TabsContent value="document" className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="document-select">Select Document</Label>
+                <Label htmlFor="document-select" className="text-gray-900 dark:text-gray-100">Select Document</Label>
                 <Select value={selectedDocument} onValueChange={setSelectedDocument} disabled={lockDocument}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white dark:bg-[#232326] text-gray-900 dark:text-gray-100 border border-muted dark:border-[#232326]">
                     <SelectValue placeholder="Choose a saved document" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white dark:bg-[#232326]">
                     {documents?.map((doc: Document) => (
-                      <SelectItem key={doc._id} value={doc._id}>
+                      <SelectItem key={doc._id} value={doc._id} className="text-gray-900 dark:text-gray-100">
                         <div className="flex items-center space-x-2">
                           <FileText className="h-4 w-4" />
                           <span>{doc.originalName}</span>
@@ -278,7 +275,7 @@ export function AnalysisForm({ analysisType, onAnalysisComplete, defaultDocument
                   </SelectContent>
                 </Select>
                 {lockDocument && (
-                  <p className="text-xs text-muted-foreground mt-1">Document pre-selected from quick action</p>
+                  <p className="text-xs text-muted-foreground dark:text-gray-400 mt-1">Document pre-selected from quick action</p>
                 )}
               </div>
               <Button 
@@ -301,23 +298,21 @@ export function AnalysisForm({ analysisType, onAnalysisComplete, defaultDocument
             </TabsContent>
           </Tabs>
         </div>
-
         {/* Progress Indicator */}
         {isLoading && (
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between text-sm text-gray-900 dark:text-gray-100">
               <span>Processing...</span>
               <span>{Math.round(progress)}%</span>
             </div>
             <Progress value={progress} className="w-full" />
           </div>
         )}
-
         {/* Analysis Type Info */}
-        <div className="flex items-center gap-2 px-4 py-2 rounded-md bg-muted text-muted-foreground text-sm whitespace-nowrap overflow-x-auto">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-md bg-muted dark:bg-[#232326] text-muted-foreground dark:text-gray-400 text-sm whitespace-nowrap overflow-x-auto">
           <AlertCircle className="h-4 w-4 shrink-0" />
           <span>
-            This will generate <span className='font-semibold'>{analysisType}</span> based on your input. Processing may take a few moments depending on the content length.
+            This will generate <span className='font-semibold text-gray-900 dark:text-gray-100'>{analysisType}</span> based on your input. Processing may take a few moments depending on the content length.
           </span>
         </div>
       </CardContent>

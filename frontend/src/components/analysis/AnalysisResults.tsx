@@ -96,7 +96,7 @@ export function AnalysisResults({ results, onRegenerate }: AnalysisResultsProps)
   return (
     <div className="space-y-6">
       {/* Header Card */}
-      <Card>
+      <Card className="bg-white dark:bg-[#18181b] border border-muted dark:border-[#232326]">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -104,14 +104,14 @@ export function AnalysisResults({ results, onRegenerate }: AnalysisResultsProps)
                 <Brain className="h-5 w-5" />
               </div>
               <div>
-                <CardTitle className="flex items-center space-x-2">
+                <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
                   <span>{typeInfo.name} Analysis</span>
                   <CheckCircle className="h-5 w-5 text-green-500" />
                 </CardTitle>
-                <CardDescription>{typeInfo.description}</CardDescription>
+                <CardDescription className="text-muted-foreground dark:text-gray-400">{typeInfo.description}</CardDescription>
               </div>
             </div>
-            <Badge variant="secondary" className="flex items-center space-x-1">
+            <Badge variant="secondary" className="flex items-center space-x-1 dark:text-gray-100">
               <Clock className="h-3 w-3" />
               <span>{formattedDate}</span>
             </Badge>
@@ -120,41 +120,40 @@ export function AnalysisResults({ results, onRegenerate }: AnalysisResultsProps)
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
             <div className="flex items-center space-x-2">
-              <FileText className="h-4 w-4 text-muted-foreground" />
+              <FileText className="h-4 w-4 text-muted-foreground dark:text-gray-400" />
               <div>
-                <p className="text-sm font-medium">{(results.wordCount || 0).toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground">Words</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{(results.wordCount || 0).toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground dark:text-gray-400">Words</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+              <BarChart3 className="h-4 w-4 text-muted-foreground dark:text-gray-400" />
               <div>
-                <p className="text-sm font-medium">{(results.textLength || 0).toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground">Characters</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{(results.textLength || 0).toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground dark:text-gray-400">Characters</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <Brain className="h-4 w-4 text-muted-foreground" />
+              <Brain className="h-4 w-4 text-muted-foreground dark:text-gray-400" />
               <div>
-                <p className="text-sm font-medium">AI Analysis</p>
-                <p className="text-xs text-muted-foreground">Gemini 2.5 Flash</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">AI Analysis</p>
+                <p className="text-xs text-muted-foreground dark:text-gray-400">Gemini 2.5 Flash</p>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
-
       {/* Results Card */}
-      <Card>
+      <Card className="bg-white dark:bg-[#18181b] border border-muted dark:border-[#232326]">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Analysis Results</CardTitle>
+            <CardTitle className="text-gray-900 dark:text-gray-100">Analysis Results</CardTitle>
             <div className="flex items-center space-x-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleCopyToClipboard}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 dark:text-gray-100"
               >
                 <Copy className="h-4 w-4" />
                 <span>Copy</span>
@@ -164,7 +163,7 @@ export function AnalysisResults({ results, onRegenerate }: AnalysisResultsProps)
                 size="sm"
                 onClick={handleDownload}
                 disabled={isDownloading}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 dark:text-gray-100"
               >
                 <Download className="h-4 w-4" />
                 <span>Download</span>
@@ -173,7 +172,7 @@ export function AnalysisResults({ results, onRegenerate }: AnalysisResultsProps)
                 variant="outline"
                 size="sm"
                 onClick={onRegenerate}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 dark:text-gray-100"
               >
                 <RefreshCw className="h-4 w-4" />
                 <span>Regenerate</span>
@@ -182,52 +181,49 @@ export function AnalysisResults({ results, onRegenerate }: AnalysisResultsProps)
           </div>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[600px] w-full rounded-md border p-4">
+          <ScrollArea className="h-[600px] w-full rounded-md border p-4 bg-white dark:bg-[#232326]">
             <div className="prose prose-sm max-w-none">
-              <div className="whitespace-pre-wrap font-mono text-sm leading-relaxed">
+              <div className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-gray-900 dark:text-gray-100">
                 {results.result}
               </div>
             </div>
           </ScrollArea>
         </CardContent>
       </Card>
-
       {/* Analysis Insights */}
-      <Card>
+      <Card className="bg-white dark:bg-[#18181b] border border-muted dark:border-[#232326]">
         <CardHeader>
-          <CardTitle>Analysis Insights</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-gray-900 dark:text-gray-100">Analysis Insights</CardTitle>
+          <CardDescription className="text-muted-foreground dark:text-gray-400">
             Key metrics and information about this analysis
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <h4 className="text-sm font-medium">Content Metrics</h4>
-              <div className="space-y-1 text-sm text-muted-foreground">
+              <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Content Metrics</h4>
+              <div className="space-y-1 text-sm text-muted-foreground dark:text-gray-400">
                 <p>• Input word count: {(results.wordCount || 0).toLocaleString()}</p>
                 <p>• Character count: {(results.textLength || 0).toLocaleString()}</p>
                 <p>• Estimated reading time: {Math.ceil((results.wordCount || 0) / 200)} minutes</p>
               </div>
             </div>
             <div className="space-y-2">
-              <h4 className="text-sm font-medium">Analysis Details</h4>
-              <div className="space-y-1 text-sm text-muted-foreground">
+              <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Analysis Details</h4>
+              <div className="space-y-1 text-sm text-muted-foreground dark:text-gray-400">
                 <p>• Analysis type: {typeInfo.name}</p>
                 <p>• Generated on: {formattedDate}</p>
                 <p>• AI model: Gemini 2.5 Flash</p>
               </div>
             </div>
           </div>
-          
           <Separator className="my-4" />
-          
-          <div className="flex items-center justify-center space-x-4 text-sm text-muted-foreground">
+          <div className="flex items-center justify-center space-x-4 text-sm text-muted-foreground dark:text-gray-400">
             <span>Need a different analysis?</span>
             <Button 
               variant="link" 
               onClick={onRegenerate}
-              className="p-0 h-auto font-medium"
+              className="p-0 h-auto font-medium dark:text-primary"
             >
               Generate new analysis
             </Button>

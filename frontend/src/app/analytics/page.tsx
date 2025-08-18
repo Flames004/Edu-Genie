@@ -89,76 +89,76 @@ export default function AnalyticsPage() {
       <DashboardLayout>
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-neutral-100">Analytics</h1>
+            <p className="text-muted-foreground dark:text-neutral-300">
               Track your learning progress and study patterns
             </p>
           </div>
 
           {/* Analytics Overview */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
+            <Card className="bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Documents Uploaded</CardTitle>
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium dark:text-neutral-100">Documents Uploaded</CardTitle>
+                <BookOpen className="h-4 w-4 text-muted-foreground dark:text-neutral-300" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{data?.stats.documents || 0}</div>
-                <p className="text-xs text-muted-foreground">
+                <div className="text-2xl font-bold text-gray-900 dark:text-neutral-100">{data?.stats.documents || 0}</div>
+                <p className="text-xs text-muted-foreground dark:text-neutral-300">
                   +{documentsThisWeek} this week
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Analyses</CardTitle>
-                <Brain className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium dark:text-neutral-100">Total Analyses</CardTitle>
+                <Brain className="h-4 w-4 text-muted-foreground dark:text-neutral-300" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{totalAnalyses}</div>
-                <p className="text-xs text-muted-foreground">
+                <div className="text-2xl font-bold text-gray-900 dark:text-neutral-100">{totalAnalyses}</div>
+                <p className="text-xs text-muted-foreground dark:text-neutral-300">
                   +{analysesThisWeek} this week
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Quiz Average</CardTitle>
-                <Trophy className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium dark:text-neutral-100">Quiz Average</CardTitle>
+                <Trophy className="h-4 w-4 text-muted-foreground dark:text-neutral-300" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-gray-900 dark:text-neutral-100">
                   {data?.stats.quizzes.total > 0 ? `${data?.stats.quizzes.averageScore}%` : 'N/A'}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground dark:text-neutral-300">
                   {data?.stats.quizzes.total || 0} quizzes taken
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Avg Analyses/Doc</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium dark:text-neutral-100">Avg Analyses/Doc</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground dark:text-neutral-300" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{avgAnalysesPerDoc}</div>
-                <p className="text-xs text-muted-foreground">
+                <div className="text-2xl font-bold text-gray-900 dark:text-neutral-100">{avgAnalysesPerDoc}</div>
+                <p className="text-xs text-muted-foreground dark:text-neutral-300">
                   Per document
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">This Week Activity</CardTitle>
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium dark:text-neutral-100">This Week Activity</CardTitle>
+                <BarChart3 className="h-4 w-4 text-muted-foreground dark:text-neutral-300" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{documentsThisWeek + analysesThisWeek}</div>
-                <p className="text-xs text-muted-foreground">
+                <div className="text-2xl font-bold text-gray-900 dark:text-neutral-100">{documentsThisWeek + analysesThisWeek}</div>
+                <p className="text-xs text-muted-foreground dark:text-neutral-300">
                   Total actions
                 </p>
               </CardContent>
@@ -167,10 +167,10 @@ export default function AnalyticsPage() {
 
           {/* Analysis Breakdown */}
           <div className="grid gap-6 md:grid-cols-2">
-            <Card>
+            <Card className="bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100">
               <CardHeader>
-                <CardTitle>Analysis Types</CardTitle>
-                <p className="text-sm text-muted-foreground">
+                <CardTitle className="dark:text-neutral-100">Analysis Types</CardTitle>
+                <p className="text-sm text-muted-foreground dark:text-neutral-300">
                   Breakdown of your analysis activity
                 </p>
               </CardHeader>
@@ -181,14 +181,14 @@ export default function AnalyticsPage() {
                       <div key={type} className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <div className={`w-3 h-3 rounded-full ${getAnalysisColor(type)}`}></div>
-                          <span className="text-sm font-medium">{getAnalysisDisplayName(type)}</span>
+                          <span className="text-sm font-medium dark:text-neutral-100">{getAnalysisDisplayName(type)}</span>
                         </div>
-                        <span className="text-sm text-muted-foreground">{count}</span>
+                        <span className="text-sm text-muted-foreground dark:text-neutral-300">{count}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center h-32 text-muted-foreground">
+                  <div className="flex items-center justify-center h-32 text-muted-foreground dark:text-neutral-300">
                     <div className="text-center">
                       <Brain className="h-8 w-8 mx-auto mb-2" />
                       <p className="text-sm">No analyses yet</p>
@@ -200,9 +200,9 @@ export default function AnalyticsPage() {
             </Card>
 
             {/* Quiz Performance Section */}
-            <Card>
+            <Card className="bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100">
               <CardHeader>
-                <CardTitle>Quiz Performance</CardTitle>
+                <CardTitle className="dark:text-neutral-100">Quiz Performance</CardTitle>
               </CardHeader>
               <CardContent>
                 {data?.stats.quizzes.total > 0 ? (
@@ -210,35 +210,35 @@ export default function AnalyticsPage() {
                     <div className="grid gap-4 md:grid-cols-3">
                       <div className="space-y-2">
                         <div className="flex items-center space-x-2">
-                          <Trophy className="h-4 w-4 text-yellow-500" />
-                          <span className="text-sm font-medium">Best Score</span>
+                          <Trophy className="h-4 w-4 text-yellow-500 dark:text-yellow-400" />
+                          <span className="text-sm font-medium dark:text-neutral-100">Best Score</span>
                         </div>
-                        <div className="text-2xl font-bold text-green-600">
+                        <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                           {data?.stats.quizzes.bestScore}%
                         </div>
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center space-x-2">
-                          <TrendingUp className="h-4 w-4 text-blue-500" />
-                          <span className="text-sm font-medium">Average Score</span>
+                          <TrendingUp className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+                          <span className="text-sm font-medium dark:text-neutral-100">Average Score</span>
                         </div>
-                        <div className="text-2xl font-bold">
+                        <div className="text-2xl font-bold text-gray-900 dark:text-neutral-100">
                           {data?.stats.quizzes.averageScore}%
                         </div>
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center space-x-2">
-                          <BarChart3 className="h-4 w-4 text-purple-500" />
-                          <span className="text-sm font-medium">Total Quizzes</span>
+                          <BarChart3 className="h-4 w-4 text-purple-500 dark:text-purple-400" />
+                          <span className="text-sm font-medium dark:text-neutral-100">Total Quizzes</span>
                         </div>
-                        <div className="text-2xl font-bold">
+                        <div className="text-2xl font-bold text-gray-900 dark:text-neutral-100">
                           {data?.stats.quizzes.total}
                         </div>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center h-32 text-muted-foreground">
+                  <div className="flex items-center justify-center h-32 text-muted-foreground dark:text-neutral-300">
                     <div className="text-center">
                       <Trophy className="h-8 w-8 mx-auto mb-2" />
                       <p className="text-sm">No quiz results yet</p>
@@ -249,10 +249,10 @@ export default function AnalyticsPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100">
               <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                <p className="text-sm text-muted-foreground">
+                <CardTitle className="dark:text-neutral-100">Recent Activity</CardTitle>
+                <p className="text-sm text-muted-foreground dark:text-neutral-300">
                   Your latest document activities
                 </p>
               </CardHeader>
@@ -261,10 +261,10 @@ export default function AnalyticsPage() {
                   <div className="space-y-4">
                     {data.recentDocuments.slice(0, 5).map((doc) => (
                       <div key={doc._id} className="flex items-center space-x-3">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <FileText className="h-4 w-4 text-muted-foreground dark:text-neutral-300" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{doc.originalName}</p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-sm font-medium truncate dark:text-neutral-100">{doc.originalName}</p>
+                          <p className="text-xs text-muted-foreground dark:text-neutral-300">
                             {doc.analyses?.length || 0} analyses • {new Date(doc.uploadDate).toLocaleDateString()}
                           </p>
                         </div>
@@ -272,7 +272,7 @@ export default function AnalyticsPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center h-32 text-muted-foreground">
+                  <div className="flex items-center justify-center h-32 text-muted-foreground dark:text-neutral-300">
                     <div className="text-center">
                       <FileText className="h-8 w-8 mx-auto mb-2" />
                       <p className="text-sm">No documents yet</p>
@@ -285,26 +285,26 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Study Insights */}
-          <Card>
+            <Card className="bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100">
             <CardHeader>
-              <CardTitle>Study Insights</CardTitle>
-              <p className="text-sm text-muted-foreground">
+                <CardTitle className="dark:text-neutral-100">Study Insights</CardTitle>
+                <p className="text-sm text-muted-foreground dark:text-neutral-300">
                 Summary of your learning patterns
               </p>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">{data?.stats.documents || 0}</div>
-                  <p className="text-sm text-muted-foreground">Documents Processed</p>
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{data?.stats.documents || 0}</div>
+                  <p className="text-sm text-muted-foreground dark:text-neutral-300">Documents Processed</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{totalAnalyses}</div>
-                  <p className="text-sm text-muted-foreground">AI Analyses Generated</p>
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">{totalAnalyses}</div>
+                  <p className="text-sm text-muted-foreground dark:text-neutral-300">AI Analyses Generated</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">{analysesThisWeek}</div>
-                  <p className="text-sm text-muted-foreground">Analyses This Week</p>
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{analysesThisWeek}</div>
+                  <p className="text-sm text-muted-foreground dark:text-neutral-300">Analyses This Week</p>
                 </div>
               </div>
             </CardContent>
