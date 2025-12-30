@@ -37,3 +37,4 @@ out/
 # Misc
 *.bak
 *.tmp
+.env
