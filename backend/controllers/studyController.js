@@ -327,7 +327,7 @@ ${content}`;
 
   try {
     const apiUrl =
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" +
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
       process.env.GEMINI_API_KEY;
 
     const response = await fetch(apiUrl, {
@@ -407,7 +407,7 @@ ${combinedContent}`;
 
   try {
     const apiUrl =
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" +
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
       process.env.GEMINI_API_KEY;
 
     const response = await fetch(apiUrl, {
@@ -506,11 +506,9 @@ export const analyzeText = async (req, res) => {
     }
 
     if (text.length > 25000) {
-      return res
-        .status(400)
-        .json({
-          message: "Text is too long. Maximum 25,000 characters allowed.",
-        });
+      return res.status(400).json({
+        message: "Text is too long. Maximum 25,000 characters allowed.",
+      });
     }
 
     const validTasks = [
@@ -857,12 +855,10 @@ export const saveFlashcardResult = async (req, res) => {
   try {
     const { documentId, timeSpent } = req.body;
     if (!documentId || !timeSpent) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Missing required fields: documentId, timeSpent",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields: documentId, timeSpent",
+      });
     }
     const flashcardResult = new FlashcardResult({
       userId: req.user._id,
