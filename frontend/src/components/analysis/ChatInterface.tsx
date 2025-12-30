@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, Loader2 } from "lucide-react";
+// We import the same client your other components use
+import apiClient from "@/lib/api/client";
 
 interface Message {
   role: "user" | "ai";
@@ -30,52 +32,50 @@ export default function ChatInterface({ documentId }: ChatInterfaceProps) {
     setLoading(true);
 
     try {
-      // 1. Safer Token Retrieval
-      const storedUser = localStorage.getItem("userInfo");
-      const token = storedUser ? JSON.parse(storedUser).token : null;
-
-      if (!token) {
-        setMessages((prev) => [
-          ...prev,
-          { role: "ai", content: "Please log in to chat." },
-        ]);
-        setLoading(false);
-        return;
-      }
-
-      // 2. API Call
-      const res = await fetch("http://localhost:5000/api/study/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          documentId,
-          question: userText,
-          history: messages,
-        }),
+      // ✅ USE API CLIENT: This automatically handles the token for you
+      const res = await apiClient.post("/study/chat", {
+        documentId,
+        question: userText,
+        history: messages,
       });
 
-      const data = await res.json();
+      // apiClient returns the data directly in res.data
+      const answer = res.data.answer;
 
-      if (!res.ok) throw new Error(data.message || "Failed to fetch");
+      setMessages((prev) => [...prev, { role: "ai", content: answer }]);
+    } catch (error: any) {
+      console.error("Chat Error:", error);
 
-      // 3. Update Chat
-      setMessages((prev) => [...prev, { role: "ai", content: data.answer }]);
-    } catch (error) {
-      console.error(error);
-      setMessages((prev) => [
-        ...prev,
-        { role: "ai", content: "⚠️ Error: Could not get response." },
-      ]);
+      let errorMessage = "⚠️ Error: Could not get response.";
+
+      // Check if it's an auth error (401)
+      if (error.response && error.response.status === 401) {
+        errorMessage = "⚠️ Session expired. Please refresh the page.";
+      }
+      // Check if it's a backend error (500)
+      else if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        errorMessage = `⚠️ ${error.response.data.message}`;
+      }
+
+      setMessages((prev) => [...prev, { role: "ai", content: errorMessage }]);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   return (
-    <div className="flex flex-col h-[600px] border rounded-xl bg-white shadow-sm overflow-hidden">
+    <div className="flex flex-col h-[600px] border rounded-xl bg-white shadow-sm overflow-hidden text-black">
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
         {messages.length === 0 && (
@@ -137,15 +137,15 @@ export default function ChatInterface({ documentId }: ChatInterfaceProps) {
       <div className="p-4 bg-white border-t">
         <div className="flex gap-2">
           <input
-            className="flex-1 border border-gray-200 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            className="flex-1 border border-gray-200 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-black"
             placeholder="Type your question..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+            onKeyDown={handleKeyDown}
             disabled={loading}
           />
           <button
-            type="button" // <--- FIXED: Prevents form submission warnings
+            type="button"
             onClick={handleSend}
             disabled={loading || !input.trim()}
             className="bg-blue-600 text-white p-2.5 rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
