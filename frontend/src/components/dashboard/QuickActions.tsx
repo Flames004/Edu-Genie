@@ -1,9 +1,16 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Upload, Brain, BookOpen, Zap, Plus, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { MessageSquare } from "lucide-react";
 
 interface QuickActionProps {
   icon: React.ComponentType<{ className?: string }>;
@@ -13,28 +20,40 @@ interface QuickActionProps {
   variant?: "default" | "primary";
 }
 
-function QuickActionCard({ icon: Icon, title, description, action, variant = "default" }: QuickActionProps) {
+function QuickActionCard({
+  icon: Icon,
+  title,
+  description,
+  action,
+  variant = "default",
+}: QuickActionProps) {
   return (
-    <Card 
+    <Card
       className={`cursor-pointer transition-all hover:shadow-md ${
-        variant === "primary" 
-          ? "border-[#d7c9ff] bg-[#f2eeff] dark:border-violet-400 dark:bg-neutral-900" 
+        variant === "primary"
+          ? "border-[#d7c9ff] bg-[#f2eeff] dark:border-violet-400 dark:bg-neutral-900"
           : "dark:bg-neutral-900"
       } text-gray-900 dark:text-neutral-100`}
       onClick={action}
     >
       <CardContent className="p-6">
         <div className="flex items-center space-x-4">
-          <div className={`p-3 rounded-lg ${
-            variant === "primary" 
-              ? "bg-[#e3d9ff] text-[#5A2ECF] dark:bg-violet-400 dark:text-neutral-900" 
-              : "bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-neutral-100"
-          }`}>
+          <div
+            className={`p-3 rounded-lg ${
+              variant === "primary"
+                ? "bg-[#e3d9ff] text-[#5A2ECF] dark:bg-violet-400 dark:text-neutral-900"
+                : "bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-neutral-100"
+            }`}
+          >
             <Icon className="h-6 w-6" />
           </div>
           <div className="flex-1">
-            <h3 className="font-medium text-gray-900 dark:text-neutral-100">{title}</h3>
-            <p className="text-sm text-gray-500 dark:text-neutral-300 mt-1">{description}</p>
+            <h3 className="font-medium text-gray-900 dark:text-neutral-100">
+              {title}
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-neutral-300 mt-1">
+              {description}
+            </p>
           </div>
         </div>
       </CardContent>
@@ -71,6 +90,14 @@ export default function QuickActions() {
       description: "Build study flashcards",
       action: () => router.push("/dashboard/analysis?type=flashcards"),
     },
+    {
+      icon: MessageSquare,
+      title: "Chat with Document",
+      description: "Ask questions and get instant answers from your notes",
+      action: () => router.push("/dashboard/analysis?type=chat"),
+      variant: "primary",
+      color: "bg-purple-500",
+    },
   ];
 
   return (
@@ -80,7 +107,9 @@ export default function QuickActions() {
           <div className="flex items-center space-x-2">
             <Plus className="h-5 w-5 dark:text-violet-300" />
             <div>
-              <CardTitle className="dark:text-neutral-100">Quick Actions</CardTitle>
+              <CardTitle className="dark:text-neutral-100">
+                Quick Actions
+              </CardTitle>
               <CardDescription className="dark:text-neutral-300">
                 Common tasks to get you started
               </CardDescription>
