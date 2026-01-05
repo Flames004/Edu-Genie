@@ -780,6 +780,30 @@ export const analyzeFile = async (req, res) => {
           ],
         });
         await document.save();
+
+        // --- UPDATE: Trigger Python Ingest Service ---
+        // This creates the vector embeddings in the Python microservice
+        try {
+          // Fire and forget (or await if you want to ensure it succeeds before responding)
+          // Using 127.0.0.1 to avoid node/localhost resolution issues
+          await fetch("http://127.0.0.1:8000/ingest", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              document_id: document._id.toString(),
+              text: textContent,
+            }),
+          });
+          console.log(`Vector ingestion triggered for doc: ${document._id}`);
+        } catch (ingestError) {
+          // We log the error but don't fail the original upload request
+          // In a production app, you might want to flag the document as "processing_failed"
+          console.error(
+            "Python Ingestion Service Failed:",
+            ingestError.message
+          );
+        }
+        // ---------------------------------------------
       } else {
         // Clean up file if no user (test route)
         fs.unlinkSync(filePath);
@@ -849,7 +873,6 @@ export const analyzeFile = async (req, res) => {
   }
 };
 
-// --- Save quiz result ---
 // --- Save flashcard study time ---
 export const saveFlashcardResult = async (req, res) => {
   try {
@@ -896,6 +919,8 @@ export const getFlashcardStats = async (req, res) => {
       .json({ success: false, message: "Error fetching flashcard stats" });
   }
 };
+
+// --- Save quiz result ---
 export const saveQuizResult = async (req, res) => {
   try {
     const { documentId, score, timeSpent, answers } = req.body;
@@ -1013,19 +1038,22 @@ export const getQuizResults = async (req, res) => {
   }
 };
 
+// --- Updated Chat with Document (Python RAG Integration) ---
 export const chatWithDocument = async (req, res) => {
   try {
     const { documentId, question, history } = req.body;
+    // Allow flexibility if frontend sends 'message' instead of 'question'
+    const query = question || req.body.message;
 
     // 1. Check if we have the required data
-    if (!documentId || !question) {
+    if (!documentId || !query) {
       return res
         .status(400)
-        .json({ message: "Document ID and Question are required" });
+        .json({ message: "Document ID and Question/Message are required" });
     }
 
-    // 2. Find the document in MongoDB to get its text
-    // We ensure the user owns it by checking 'userId: req.user._id'
+    // 2. Find the document in MongoDB to ensure ownership
+    // We do NOT need to extract text here anymore, just validate the ID belongs to the user
     const document = await Document.findOne({
       _id: documentId,
       userId: req.user._id,
@@ -1037,14 +1065,14 @@ export const chatWithDocument = async (req, res) => {
         .json({ message: "Document not found or unauthorized" });
     }
 
-    // 3. Send the Text + Question to your Python Microservice
-    // We point to port 8000 where your Python script is running
+    // 3. Send the ID + Question to your Python Microservice
+    // The Python service will use the ID to retrieve relevant vectors from its store
     const pythonResponse = await fetch("http://127.0.0.1:8000/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        context: document.extractedText, // The text you stored when uploading
-        question: question,
+        document_id: documentId, // Python uses this to find the vectors
+        question: query,
         history: history || [],
       }),
     });
@@ -1060,9 +1088,12 @@ export const chatWithDocument = async (req, res) => {
 
     // 5. Return the answer to the Frontend
     const data = await pythonResponse.json();
+
+    // Support both 'answer' and 'reply' formats depending on Python output
     res.json({
       success: true,
-      answer: data.answer,
+      answer: data.answer || data.reply,
+      reply: data.reply || data.answer, // ensuring frontend compatibility
     });
   } catch (err) {
     console.error("Chat Bridge Error:", err);

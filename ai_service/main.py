@@ -1,77 +1,158 @@
 import os
 import uvicorn
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware # Added for safety
 from pydantic import BaseModel
 from typing import List
 from dotenv import load_dotenv
 
-# LangChain Imports
-from langchain_google_genai import ChatGoogleGenerativeAI
+# MongoDB & AI Imports
+from pymongo import MongoClient
+from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+from langchain_mongodb import MongoDBAtlasVectorSearch
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import HumanMessage, AIMessage
-from langchain_core.output_parsers import StrOutputParser
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains import create_retrieval_chain
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-# 1. Load Environment Variables 
+# 1. Configuration
 load_dotenv()
+MONGO_URI = os.getenv("MONGO_URI") 
+DB_NAME = "edugenie"
+COLLECTION_NAME = "vector_store"
 
-# 2. Initialize FastAPI
 app = FastAPI()
 
-# 3. Setup Gemini Model
+# Enable CORS to allow requests from Node.js/Frontend if needed
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# 2. Setup Database & AI
+client = MongoClient(MONGO_URI)
+db = client[DB_NAME]
+collection = db[COLLECTION_NAME]
+
+embeddings = GoogleGenerativeAIEmbeddings(
+    model="models/text-embedding-004", 
+    google_api_key=os.getenv("GEMINI_API_KEY")
+)
+
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash-lite", 
+    model="gemini-2.5-flash-lite",
     google_api_key=os.getenv("GEMINI_API_KEY"),
-    temperature=0.3, # Lower temperature = more factual answers
+    temperature=0.3,
     convert_system_message_to_human=True
 )
 
-# 4. Define Data Models (What we expect to receive)
-class ChatMessage(BaseModel):
-    role: str       # "user" or "ai"
-    content: str    # The actual message text
+# Connect to the Atlas Vector Store
+vector_store = MongoDBAtlasVectorSearch(
+    collection=collection,
+    embedding=embeddings,
+    index_name="vector_index", 
+    relevance_score_fn="cosine"
+)
+
+# --- Data Models ---
+class IngestRequest(BaseModel):
+    document_id: str
+    text: str
 
 class ChatRequest(BaseModel):
-    context: str                # The text of the document
-    question: str               # The new question
-    history: List[ChatMessage]  # The previous conversation
+    document_id: str
+    question: str
+    history: List[dict]
 
-# 5. The Chat Endpoint
+# --- Endpoints ---
+
+@app.post("/ingest")
+async def ingest_endpoint(request: IngestRequest):
+    try:
+        # 1. Split text
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        # We explicitly set metadata, but LangChain might flatten it. 
+        # Since debug showed Root, we trust the DB state.
+        chunks = text_splitter.create_documents(
+            texts=[request.text], 
+            metadatas=[{"document_id": request.document_id}] 
+        )
+
+        # 2. Add to Vector Store
+        vector_store.add_documents(chunks)
+        
+        return {"status": "success", "chunks_created": len(chunks)}
+
+    except Exception as e:
+        print(f"Ingest Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/chat")
 async def chat_endpoint(request: ChatRequest):
     try:
-        # Step A: Convert the raw history list into LangChain's format
-        # LangChain needs to know specifically which message is Human vs AI
-        langchain_history = []
+        # 1. Search Vector Store (Using ROOT 'document_id')
+        # We search for the String ID directly.
+        results = vector_store.similarity_search(
+            request.question,
+            k=5,
+            pre_filter={"document_id": {"$eq": request.document_id}} 
+        )
+
+        if not results:
+            # Fallback for debugging: If root fails, try metadata (Just in case)
+            print("Root search failed, trying metadata fallback...")
+            results = vector_store.similarity_search(
+                request.question,
+                k=5,
+                pre_filter={"metadata.document_id": {"$eq": request.document_id}} 
+            )
+
+        if not results:
+            return {"answer": "I cannot find any content for this document. It might still be processing."}
+
+        # 2. Retriever (Dynamic Choice based on what we found above)
+        # Ideally we stick to one, but since we are fixing a mismatch, let's match the working filter.
+        # For now, we enforce ROOT because your debug script proved it.
+        retriever = vector_store.as_retriever(
+            search_type="similarity",
+            search_kwargs={
+                "k": 5,
+                "pre_filter": { "document_id": { "$eq": request.document_id } }
+            }
+        )
+
+        history_messages = []
         for msg in request.history:
-            if msg.role == "user":
-                langchain_history.append(HumanMessage(content=msg.content))
-            else:
-                langchain_history.append(AIMessage(content=msg.content))
+            if msg.get("role") == "user":
+                history_messages.append(HumanMessage(content=msg.get("content")))
+            elif msg.get("role") == "ai":
+                history_messages.append(AIMessage(content=msg.get("content")))
 
-        # Step B: Create the Prompt Template
-        # We tell the AI: "Here is the document (context). Here is what we talked about (history). Answer the new question."
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a helpful tutor. Answer the question based ONLY on the following context:\n\n{context}"),
+        prompt_template = ChatPromptTemplate.from_messages([
+            ("system", "You are a helpful tutor. Answer the question based ONLY on the provided context:\n\n{context}"),
             MessagesPlaceholder(variable_name="chat_history"),
-            ("human", "{question}")
+            ("human", "{input}"),
         ])
+        
+        chain = create_retrieval_chain(
+            retriever, 
+            create_stuff_documents_chain(llm, prompt_template)
+        )
 
-        # Step C: Create the Chain (Prompt -> AI -> Text)
-        chain = prompt | llm | StrOutputParser()
-
-        # Step D: Run it!
         response = chain.invoke({
-            "context": request.context,
-            "chat_history": langchain_history,
-            "question": request.question
+            "input": request.question,
+            "chat_history": history_messages
         })
 
-        return {"answer": response}
+        return {"answer": response["answer"]}
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Chat Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# 6. Run the server if this file is executed directly
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
