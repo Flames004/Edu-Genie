@@ -10,7 +10,7 @@ import Document from "../models/Document.js";
 import FlashcardResult from "../models/FlashcardResult.js";
 import QuizResult from "../models/QuizResult.js";
 
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://127.0.0.1:8000";
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL
 
 // Security: File signature validation
 const FILE_SIGNATURES = {
