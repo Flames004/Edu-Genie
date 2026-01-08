@@ -148,6 +148,7 @@ export default function ChatInterface({ documentId }: ChatInterfaceProps) {
             type="button"
             onClick={handleSend}
             disabled={loading || !input.trim()}
+            title="Send message"
             className="bg-blue-600 text-white p-2.5 rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
           >
             <Send className="w-5 h-5" />
