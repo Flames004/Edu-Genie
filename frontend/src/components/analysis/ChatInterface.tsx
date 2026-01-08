@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Send, Bot, User, Loader2 } from "lucide-react";
 // We import the same client your other components use
 import apiClient from "@/lib/api/client";
+import { AxiosError } from "axios";
 
 interface Message {
   role: "user" | "ai";
@@ -43,22 +44,18 @@ export default function ChatInterface({ documentId }: ChatInterfaceProps) {
       const answer = res.data.answer;
 
       setMessages((prev) => [...prev, { role: "ai", content: answer }]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Chat Error:", error);
 
       let errorMessage = "⚠️ Error: Could not get response.";
 
-      // Check if it's an auth error (401)
-      if (error.response && error.response.status === 401) {
-        errorMessage = "⚠️ Session expired. Please refresh the page.";
-      }
-      // Check if it's a backend error (500)
-      else if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        errorMessage = `⚠️ ${error.response.data.message}`;
+      // Type guard for Axios errors
+      if (error instanceof AxiosError) {
+        if (error.response && error.response.status === 401) {
+          errorMessage = "⚠️ Session expired. Please refresh the page.";
+        } else if (error.response?.data?.message) {
+          errorMessage = `⚠️ ${error.response.data.message}`;
+        }
       }
 
       setMessages((prev) => [...prev, { role: "ai", content: errorMessage }]);
@@ -85,7 +82,7 @@ export default function ChatInterface({ documentId }: ChatInterfaceProps) {
               Ask a question about your document
             </p>
             <p className="text-sm">
-              "Summarize this" or "What is the main topic?"
+              &quot;Summarize this&quot; or &quot;What is the main topic?&quot;
             </p>
           </div>
         )}
@@ -148,8 +145,8 @@ export default function ChatInterface({ documentId }: ChatInterfaceProps) {
             type="button"
             onClick={handleSend}
             disabled={loading || !input.trim()}
-            className="bg-blue-600 text-white p-2.5 rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
             title="Send message"
+            className="bg-blue-600 text-white p-2.5 rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
           >
             <Send className="w-5 h-5" />
           </button>
