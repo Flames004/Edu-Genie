@@ -10,6 +10,8 @@ import Document from "../models/Document.js";
 import FlashcardResult from "../models/FlashcardResult.js";
 import QuizResult from "../models/QuizResult.js";
 
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://127.0.0.1:8000";
+
 // Security: File signature validation
 const FILE_SIGNATURES = {
   "application/pdf": [0x25, 0x50, 0x44, 0x46], // %PDF
@@ -786,7 +788,7 @@ export const analyzeFile = async (req, res) => {
         try {
           // Fire and forget (or await if you want to ensure it succeeds before responding)
           // Using 127.0.0.1 to avoid node/localhost resolution issues
-          await fetch("http://127.0.0.1:8000/ingest", {
+          await fetch(`${AI_SERVICE_URL}/ingest`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
