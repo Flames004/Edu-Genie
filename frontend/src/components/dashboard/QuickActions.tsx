@@ -95,7 +95,7 @@ export default function QuickActions() {
       title: "Chat with Document",
       description: "Ask questions and get instant answers from your notes",
       action: () => router.push("/dashboard/analysis?type=chat"),
-      variant: "primary",
+      variant: "primary" as const,
       color: "bg-purple-500",
     },
   ];
