@@ -12,10 +12,12 @@ import QuizResult from "../models/QuizResult.js";
 
 // Security: File signature validation
 const FILE_SIGNATURES = {
-  'application/pdf': [0x25, 0x50, 0x44, 0x46], // %PDF
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [0x50, 0x4B], // PK
-  'application/msword': [0xD0, 0xCF, 0x11, 0xE0], // DOC signature
-  'text/plain': null // No signature required
+  "application/pdf": [0x25, 0x50, 0x44, 0x46], // %PDF
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [
+    0x50, 0x4b,
+  ], // PK
+  "application/msword": [0xd0, 0xcf, 0x11, 0xe0], // DOC signature
+  "text/plain": null, // No signature required
 };
 
 // --- Multer setup for file uploads ---
@@ -32,10 +34,13 @@ function validateFileSignature(filePath, mimeType) {
   try {
     const expectedSignature = FILE_SIGNATURES[mimeType];
     if (!expectedSignature) return true; // No signature check for text files
-    
-    const buffer = fs.readFileSync(filePath, { start: 0, end: expectedSignature.length });
+
+    const buffer = fs.readFileSync(filePath, {
+      start: 0,
+      end: expectedSignature.length,
+    });
     const fileSignature = Array.from(buffer);
-    
+
     // Check if file signature matches expected
     for (let i = 0; i < expectedSignature.length; i++) {
       if (fileSignature[i] !== expectedSignature[i]) {
@@ -44,7 +49,7 @@ function validateFileSignature(filePath, mimeType) {
     }
     return true;
   } catch (error) {
-    console.error('File signature validation error:', error);
+    console.error("File signature validation error:", error);
     return false;
   }
 }
@@ -53,13 +58,13 @@ function validateFileSignature(filePath, mimeType) {
 function sanitizeFilename(originalName) {
   // Remove/replace dangerous characters
   const sanitized = originalName
-    .replace(/[^a-zA-Z0-9\-_.]/g, '_') // Replace special chars
-    .replace(/\.{2,}/g, '_')           // Replace multiple dots
-    .substring(0, 255);                // Limit length
-  
+    .replace(/[^a-zA-Z0-9\-_.]/g, "_") // Replace special chars
+    .replace(/\.{2,}/g, "_") // Replace multiple dots
+    .substring(0, 255); // Limit length
+
   // Generate unique secure filename
   const timestamp = Date.now();
-  const randomSuffix = crypto.randomBytes(8).toString('hex');
+  const randomSuffix = crypto.randomBytes(8).toString("hex");
   return `${timestamp}_${randomSuffix}_${sanitized}`;
 }
 
@@ -73,34 +78,34 @@ const storage = multer.diskStorage({
   },
 });
 
-export const uploadMiddleware = multer({ 
+export const uploadMiddleware = multer({
   storage,
   fileFilter: (req, file, cb) => {
     const allowedTypes = [
-      'application/pdf',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/msword',
-      'text/plain'
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/msword",
+      "text/plain",
     ];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Only PDF, DOC, DOCX, and TXT files are allowed'), false);
+      cb(new Error("Only PDF, DOC, DOCX, and TXT files are allowed"), false);
     }
   },
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB limit as per project plan
-  }
+    fileSize: 10 * 1024 * 1024, // 10MB limit as per project plan
+  },
 });
 
 // --- Text chunking function ---
 function chunkText(text, maxChunkSize = 4000) {
-  const words = text.split(' ');
+  const words = text.split(" ");
   const chunks = [];
-  let currentChunk = '';
+  let currentChunk = "";
 
   for (const word of words) {
-    if ((currentChunk + ' ' + word).length > maxChunkSize) {
+    if ((currentChunk + " " + word).length > maxChunkSize) {
       if (currentChunk) {
         chunks.push(currentChunk.trim());
         currentChunk = word;
@@ -108,7 +113,7 @@ function chunkText(text, maxChunkSize = 4000) {
         chunks.push(word);
       }
     } else {
-      currentChunk += (currentChunk ? ' ' : '') + word;
+      currentChunk += (currentChunk ? " " : "") + word;
     }
   }
 
@@ -126,8 +131,8 @@ async function parsePDF(filePath) {
     const pdfData = await pdfParse(dataBuffer);
     return pdfData.text.trim();
   } catch (error) {
-    console.error('PDF parsing error:', error);
-    throw new Error('Failed to parse PDF file');
+    console.error("PDF parsing error:", error);
+    throw new Error("Failed to parse PDF file");
   }
 }
 
@@ -136,17 +141,17 @@ async function parseWord(filePath) {
     const result = await mammoth.extractRawText({ path: filePath });
     return result.value.trim();
   } catch (error) {
-    console.error('Word parsing error:', error);
-    throw new Error('Failed to parse Word document');
+    console.error("Word parsing error:", error);
+    throw new Error("Failed to parse Word document");
   }
 }
 
 function parseText(filePath) {
   try {
-    return fs.readFileSync(filePath, 'utf-8').trim();
+    return fs.readFileSync(filePath, "utf-8").trim();
   } catch (error) {
-    console.error('Text parsing error:', error);
-    throw new Error('Failed to parse text file');
+    console.error("Text parsing error:", error);
+    throw new Error("Failed to parse text file");
   }
 }
 
@@ -156,10 +161,13 @@ async function analyzeWithGemini(content, type = "summary") {
   const documentLength = content.length;
   const estimatedPages = Math.ceil(documentLength / 2500); // ~2500 chars per page
   const maxContentLength = 4000;
-  
+
   // Warn about very long documents
-  if (documentLength > 100000) { // ~40+ pages
-    console.warn(`Processing large document: ${estimatedPages} pages, ${documentLength} characters`);
+  if (documentLength > 100000) {
+    // ~40+ pages
+    console.warn(
+      `Processing large document: ${estimatedPages} pages, ${documentLength} characters`
+    );
   }
 
   let result = "";
@@ -168,27 +176,36 @@ async function analyzeWithGemini(content, type = "summary") {
     // Adaptive chunking based on document size
     let chunkSize = maxContentLength;
     let maxChunks = 50; // Reasonable limit
-    
+
     if (estimatedPages > 100) {
       // For very long documents, use larger chunks and limit processing
       chunkSize = 8000;
       maxChunks = 25;
-      console.warn(`Large document detected: Using adaptive processing (${estimatedPages} pages)`);
+      console.warn(
+        `Large document detected: Using adaptive processing (${estimatedPages} pages)`
+      );
     }
-    
+
     // Chunk the content and analyze each chunk
     const chunks = chunkText(content, chunkSize);
-    
+
     // Limit chunks for very long documents
     const chunksToProcess = chunks.slice(0, maxChunks);
     if (chunks.length > maxChunks) {
-      console.warn(`Document too long: Processing first ${maxChunks} sections out of ${chunks.length}`);
+      console.warn(
+        `Document too long: Processing first ${maxChunks} sections out of ${chunks.length}`
+      );
     }
-    
+
     const chunkResults = [];
 
     for (let i = 0; i < chunksToProcess.length; i++) {
-      const chunkResult = await analyzeSingleChunk(chunksToProcess[i], type, i + 1, chunksToProcess.length);
+      const chunkResult = await analyzeSingleChunk(
+        chunksToProcess[i],
+        type,
+        i + 1,
+        chunksToProcess.length
+      );
       chunkResults.push(chunkResult);
     }
 
@@ -202,17 +219,23 @@ async function analyzeWithGemini(content, type = "summary") {
   return {
     type,
     result,
-    wordCount: content.split(' ').length,
+    wordCount: content.split(" ").length,
     textLength: content.length,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 }
 
-async function analyzeSingleChunk(content, type, chunkNumber = 1, totalChunks = 1) {
+async function analyzeSingleChunk(
+  content,
+  type,
+  chunkNumber = 1,
+  totalChunks = 1
+) {
   let prompt = "";
-  
-  const chunkPrefix = totalChunks > 1 ? `[Part ${chunkNumber} of ${totalChunks}] ` : "";
-  
+
+  const chunkPrefix =
+    totalChunks > 1 ? `[Part ${chunkNumber} of ${totalChunks}] ` : "";
+
   switch (type) {
     case "summary":
       prompt = `${chunkPrefix}Please provide a clear and concise summary of the following content, highlighting the main points and key information:\n\n${content}`;
@@ -303,8 +326,10 @@ ${content}`;
   }
 
   try {
-    const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + process.env.GEMINI_API_KEY;
-    
+    const apiUrl =
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=" +
+      process.env.GEMINI_API_KEY;
+
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -325,7 +350,11 @@ ${content}`;
 
     const data = await response.json();
 
-    if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+    if (
+      data.candidates &&
+      data.candidates.length > 0 &&
+      data.candidates[0].content
+    ) {
       return data.candidates[0].content.parts[0].text;
     } else {
       console.error("Unexpected API response structure:", data);
@@ -338,8 +367,8 @@ ${content}`;
 }
 
 async function combineChunkResults(chunkResults, type) {
-  const combinedContent = chunkResults.join('\n\n---\n\n');
-  
+  const combinedContent = chunkResults.join("\n\n---\n\n");
+
   let combinePrompt = "";
   switch (type) {
     case "summary":
@@ -377,8 +406,10 @@ ${combinedContent}`;
   }
 
   try {
-    const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + process.env.GEMINI_API_KEY;
-    
+    const apiUrl =
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
+      process.env.GEMINI_API_KEY;
+
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -398,7 +429,11 @@ ${combinedContent}`;
 
     const data = await response.json();
 
-    if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+    if (
+      data.candidates &&
+      data.candidates.length > 0 &&
+      data.candidates[0].content
+    ) {
       return data.candidates[0].content.parts[0].text;
     } else {
       return combinedContent;
@@ -415,28 +450,32 @@ export const getAnalysisTypes = (req, res) => {
     {
       type: "summary",
       name: "Summary",
-      description: "Get a concise summary of the main points and key information"
+      description:
+        "Get a concise summary of the main points and key information",
     },
     {
-      type: "explanation", 
+      type: "explanation",
       name: "Explanation",
-      description: "Get simple, easy-to-understand explanations of complex concepts"
+      description:
+        "Get simple, easy-to-understand explanations of complex concepts",
     },
     {
       type: "quiz",
-      name: "Quiz Generation", 
-      description: "Generate multiple choice questions to test understanding"
+      name: "Quiz Generation",
+      description: "Generate multiple choice questions to test understanding",
     },
     {
       type: "keywords",
       name: "Keywords Extraction",
-      description: "Extract important keywords and key phrases organized by relevance"
+      description:
+        "Extract important keywords and key phrases organized by relevance",
     },
     {
       type: "flashcards",
       name: "Flashcards",
-      description: "Create study flashcards with questions and answers for key concepts"
-    }
+      description:
+        "Create study flashcards with questions and answers for key concepts",
+    },
   ];
 
   res.json({
@@ -445,9 +484,9 @@ export const getAnalysisTypes = (req, res) => {
     supportedFileTypes: [
       "application/pdf",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/msword", 
-      "text/plain"
-    ]
+      "application/msword",
+      "text/plain",
+    ],
   });
 };
 
@@ -455,35 +494,45 @@ export const getAnalysisTypes = (req, res) => {
 export const analyzeText = async (req, res) => {
   try {
     const { text, task } = req.body;
-    
+
     if (!text || !task) {
       return res.status(400).json({ message: "Missing text or task type" });
     }
 
     if (text.length < 10) {
-      return res.status(400).json({ message: "Text is too short for meaningful analysis" });
+      return res
+        .status(400)
+        .json({ message: "Text is too short for meaningful analysis" });
     }
 
     if (text.length > 25000) {
-      return res.status(400).json({ message: "Text is too long. Maximum 25,000 characters allowed." });
+      return res.status(400).json({
+        message: "Text is too long. Maximum 25,000 characters allowed.",
+      });
     }
 
-    const validTasks = ["summary", "explanation", "quiz", "keywords", "flashcards"];
+    const validTasks = [
+      "summary",
+      "explanation",
+      "quiz",
+      "keywords",
+      "flashcards",
+    ];
     if (!validTasks.includes(task)) {
-      return res.status(400).json({ 
-        message: "Invalid task type. Valid options: " + validTasks.join(", ") 
+      return res.status(400).json({
+        message: "Invalid task type. Valid options: " + validTasks.join(", "),
       });
     }
 
     const analysis = await analyzeWithGemini(text, task);
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       analysis,
       textInfo: {
         length: text.length,
-        wordCount: text.split(' ').length
-      }
+        wordCount: text.split(" ").length,
+      },
     });
   } catch (err) {
     console.error("Text analysis error:", err);
@@ -499,7 +548,7 @@ export const getUserDocuments = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const documents = await Document.find({ userId: req.user._id })
-      .select('-extractedText') // Exclude large text content
+      .select("-extractedText") // Exclude large text content
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -513,8 +562,8 @@ export const getUserDocuments = async (req, res) => {
         current: page,
         total: Math.ceil(total / limit),
         count: documents.length,
-        totalDocuments: total
-      }
+        totalDocuments: total,
+      },
     });
   } catch (err) {
     console.error("Get documents error:", err);
@@ -527,7 +576,7 @@ export const getDocument = async (req, res) => {
   try {
     const document = await Document.findOne({
       _id: req.params.id,
-      userId: req.user._id
+      userId: req.user._id,
     });
 
     if (!document) {
@@ -536,7 +585,7 @@ export const getDocument = async (req, res) => {
 
     res.json({
       success: true,
-      document
+      document,
     });
   } catch (err) {
     console.error("Get document error:", err);
@@ -548,17 +597,23 @@ export const getDocument = async (req, res) => {
 export const reAnalyzeDocument = async (req, res) => {
   try {
     const { task } = req.body;
-    const validTasks = ["summary", "explanation", "quiz", "keywords", "flashcards"];
-    
+    const validTasks = [
+      "summary",
+      "explanation",
+      "quiz",
+      "keywords",
+      "flashcards",
+    ];
+
     if (!validTasks.includes(task)) {
-      return res.status(400).json({ 
-        message: "Invalid task type. Valid options: " + validTasks.join(", ") 
+      return res.status(400).json({
+        message: "Invalid task type. Valid options: " + validTasks.join(", "),
       });
     }
 
     const document = await Document.findOne({
       _id: req.params.id,
-      userId: req.user._id
+      userId: req.user._id,
     });
 
     if (!document) {
@@ -566,16 +621,16 @@ export const reAnalyzeDocument = async (req, res) => {
     }
 
     // Check if this analysis already exists
-    const existingAnalysis = document.analyses.find(a => a.taskType === task);
+    const existingAnalysis = document.analyses.find((a) => a.taskType === task);
     if (existingAnalysis) {
       return res.json({
         success: true,
         analysis: {
           type: task,
           result: existingAnalysis.result,
-          timestamp: existingAnalysis.timestamp
+          timestamp: existingAnalysis.timestamp,
         },
-        message: "Using existing analysis"
+        message: "Using existing analysis",
       });
     }
 
@@ -586,14 +641,14 @@ export const reAnalyzeDocument = async (req, res) => {
     document.analyses.push({
       taskType: task,
       result: analysis.result,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
     await document.save();
 
     res.json({
       success: true,
       analysis,
-      message: "New analysis completed"
+      message: "New analysis completed",
     });
   } catch (err) {
     console.error("Re-analyze document error:", err);
@@ -606,7 +661,7 @@ export const deleteDocument = async (req, res) => {
   try {
     const document = await Document.findOne({
       _id: req.params.id,
-      userId: req.user._id
+      userId: req.user._id,
     });
 
     if (!document) {
@@ -623,7 +678,7 @@ export const deleteDocument = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Document deleted successfully"
+      message: "Document deleted successfully",
     });
   } catch (err) {
     console.error("Delete document error:", err);
@@ -646,7 +701,8 @@ export const analyzeFile = async (req, res) => {
       if (req.file.mimetype === "application/pdf") {
         textContent = await parsePDF(filePath);
       } else if (
-        req.file.mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+        req.file.mimetype ===
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
         req.file.mimetype === "application/msword"
       ) {
         textContent = await parseWord(filePath);
@@ -657,32 +713,45 @@ export const analyzeFile = async (req, res) => {
       }
 
       // Security: Validate file signature
-      const isValidSignature = validateFileSignature(filePath, req.file.mimetype);
+      const isValidSignature = validateFileSignature(
+        filePath,
+        req.file.mimetype
+      );
       if (!isValidSignature) {
         fs.unlinkSync(filePath); // Clean up suspicious file
-        return res.status(400).json({ 
+        return res.status(400).json({
           success: false,
           error: "INVALID_FILE_SIGNATURE",
-          message: "File signature does not match declared type. Possible security threat." 
+          message:
+            "File signature does not match declared type. Possible security threat.",
         });
       }
 
       if (!textContent || textContent.length < 10) {
         // Clean up the uploaded file
         fs.unlinkSync(filePath);
-        return res.status(400).json({ message: "Could not extract meaningful text from the file" });
+        return res
+          .status(400)
+          .json({ message: "Could not extract meaningful text from the file" });
       }
 
       // Normalize extracted text for flashcard analysis
-      textContent = textContent.replace(/\r\n|\r|\n/g, ' ')
-                               .replace(/\s+/g, ' ')
-                               .trim();
+      textContent = textContent
+        .replace(/\r\n|\r|\n/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
 
       // Run Gemini analysis
       const { task } = req.body;
-      const validTasks = ["summary", "explanation", "quiz", "keywords", "flashcards"];
+      const validTasks = [
+        "summary",
+        "explanation",
+        "quiz",
+        "keywords",
+        "flashcards",
+      ];
       const analysisTask = validTasks.includes(task) ? task : "summary";
-      
+
       const analysis = await analyzeWithGemini(textContent, analysisTask);
 
       // Save document to database if user is authenticated
@@ -690,7 +759,7 @@ export const analyzeFile = async (req, res) => {
       // Document length analysis for user feedback
       const estimatedPages = Math.ceil(textContent.length / 2500);
       const isLongDocument = textContent.length > 50000; // ~20+ pages
-      
+
       if (req.user) {
         document = new Document({
           userId: req.user._id,
@@ -702,20 +771,46 @@ export const analyzeFile = async (req, res) => {
           extractedText: textContent,
           textLength: textContent.length,
           estimatedPages: estimatedPages,
-          analyses: [{
-            taskType: analysisTask,
-            result: analysis.result,
-            timestamp: new Date()
-          }]
+          analyses: [
+            {
+              taskType: analysisTask,
+              result: analysis.result,
+              timestamp: new Date(),
+            },
+          ],
         });
         await document.save();
+
+        // --- UPDATE: Trigger Python Ingest Service ---
+        // This creates the vector embeddings in the Python microservice
+        try {
+          // Fire and forget (or await if you want to ensure it succeeds before responding)
+          // Using 127.0.0.1 to avoid node/localhost resolution issues
+          await fetch("http://127.0.0.1:8000/ingest", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              document_id: document._id.toString(),
+              text: textContent,
+            }),
+          });
+          console.log(`Vector ingestion triggered for doc: ${document._id}`);
+        } catch (ingestError) {
+          // We log the error but don't fail the original upload request
+          // In a production app, you might want to flag the document as "processing_failed"
+          console.error(
+            "Python Ingestion Service Failed:",
+            ingestError.message
+          );
+        }
+        // ---------------------------------------------
       } else {
         // Clean up file if no user (test route)
         fs.unlinkSync(filePath);
       }
 
-      res.json({ 
-        success: true, 
+      res.json({
+        success: true,
         analysis,
         documentId: document ? document._id : null,
         fileInfo: {
@@ -724,71 +819,83 @@ export const analyzeFile = async (req, res) => {
           type: req.file.mimetype,
           textLength: textContent.length,
           estimatedPages: estimatedPages,
-          isLongDocument: isLongDocument
+          isLongDocument: isLongDocument,
         },
-        warnings: isLongDocument ? [
-          `Large document detected: ~${estimatedPages} pages`,
-          "Processing time may be longer for large documents",
-          textContent.length > 100000 ? "Only first sections were analyzed due to document size" : null
-        ].filter(Boolean) : []
+        warnings: isLongDocument
+          ? [
+              `Large document detected: ~${estimatedPages} pages`,
+              "Processing time may be longer for large documents",
+              textContent.length > 100000
+                ? "Only first sections were analyzed due to document size"
+                : null,
+            ].filter(Boolean)
+          : [],
       });
-
     } catch (parseError) {
       // Enhanced security: Clean up file immediately on any parsing error
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
-      
+
       console.error("File parsing error:", parseError);
-      
+
       // Determine error type for better user feedback
       let errorType = "PARSING_ERROR";
       let userMessage = "Error processing file";
-      
-      if (parseError.message.includes('password')) {
+
+      if (parseError.message.includes("password")) {
         errorType = "PASSWORD_PROTECTED";
         userMessage = "PDF is password protected. Please provide password.";
-      } else if (parseError.message.includes('corrupt') || parseError.message.includes('invalid')) {
+      } else if (
+        parseError.message.includes("corrupt") ||
+        parseError.message.includes("invalid")
+      ) {
         errorType = "CORRUPTED_FILE";
         userMessage = "File appears to be corrupted or invalid.";
-      } else if (parseError.message.includes('signature')) {
+      } else if (parseError.message.includes("signature")) {
         errorType = "SECURITY_THREAT";
         userMessage = "File failed security validation.";
       }
-      
-      return res.status(400).json({ 
+
+      return res.status(400).json({
         success: false,
         error: errorType,
         message: userMessage,
-        details: process.env.NODE_ENV === 'development' ? parseError.message : undefined
+        details:
+          process.env.NODE_ENV === "development"
+            ? parseError.message
+            : undefined,
       });
     }
-
   } catch (err) {
     console.error("File analysis error:", err);
     res.status(500).json({ message: "Error analyzing file: " + err.message });
   }
 };
 
-// --- Save quiz result ---
 // --- Save flashcard study time ---
 export const saveFlashcardResult = async (req, res) => {
   try {
     const { documentId, timeSpent } = req.body;
     if (!documentId || !timeSpent) {
-      return res.status(400).json({ success: false, message: "Missing required fields: documentId, timeSpent" });
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields: documentId, timeSpent",
+      });
     }
     const flashcardResult = new FlashcardResult({
       userId: req.user._id,
       documentId,
       timeSpent,
-      completedAt: new Date()
+      completedAt: new Date(),
     });
     await flashcardResult.save();
     res.json({ success: true, message: "Flashcard study time saved" });
   } catch (err) {
     console.error("Save flashcard result error:", err);
-    res.status(500).json({ success: false, message: "Error saving flashcard study time" });
+    res
+      .status(500)
+      .json({ success: false, message: "Error saving flashcard study time" });
   }
 };
 
@@ -797,41 +904,46 @@ export const getFlashcardStats = async (req, res) => {
   try {
     const totalTimeSpent = await FlashcardResult.aggregate([
       { $match: { userId: req.user._id } },
-      { $group: { _id: null, total: { $sum: "$timeSpent" } } }
+      { $group: { _id: null, total: { $sum: "$timeSpent" } } },
     ]);
     res.json({
       success: true,
       stats: {
-        totalTimeSpent: totalTimeSpent[0]?.total || 0
-      }
+        totalTimeSpent: totalTimeSpent[0]?.total || 0,
+      },
     });
   } catch (err) {
     console.error("Get flashcard stats error:", err);
-    res.status(500).json({ success: false, message: "Error fetching flashcard stats" });
+    res
+      .status(500)
+      .json({ success: false, message: "Error fetching flashcard stats" });
   }
 };
+
+// --- Save quiz result ---
 export const saveQuizResult = async (req, res) => {
   try {
     const { documentId, score, timeSpent, answers } = req.body;
-    
+
     // Validate required fields
     if (!documentId || !score || !timeSpent || !answers) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Missing required fields: documentId, score, timeSpent, answers" 
+      return res.status(400).json({
+        success: false,
+        message:
+          "Missing required fields: documentId, score, timeSpent, answers",
       });
     }
 
     // Validate document belongs to user
-    const document = await Document.findOne({ 
-      _id: documentId, 
-      userId: req.user._id 
+    const document = await Document.findOne({
+      _id: documentId,
+      userId: req.user._id,
     });
-    
+
     if (!document) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Document not found" 
+      return res.status(404).json({
+        success: false,
+        message: "Document not found",
       });
     }
 
@@ -842,10 +954,10 @@ export const saveQuizResult = async (req, res) => {
       score: {
         correct: score.correct,
         total: score.total,
-        percentage: score.percentage
+        percentage: score.percentage,
       },
       timeSpent,
-      answers
+      answers,
     });
 
     await quizResult.save();
@@ -857,15 +969,14 @@ export const saveQuizResult = async (req, res) => {
         id: quizResult._id,
         score: quizResult.score,
         timeSpent: quizResult.timeSpent,
-        completedAt: quizResult.completedAt
-      }
+        completedAt: quizResult.completedAt,
+      },
     });
-
   } catch (err) {
     console.error("Save quiz result error:", err);
-    res.status(500).json({ 
-      success: false, 
-      message: "Error saving quiz result: " + err.message 
+    res.status(500).json({
+      success: false,
+      message: "Error saving quiz result: " + err.message,
     });
   }
 };
@@ -878,7 +989,7 @@ export const getQuizResults = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const quizResults = await QuizResult.find({ userId: req.user._id })
-      .populate('documentId', 'originalName fileName')
+      .populate("documentId", "originalName fileName")
       .sort({ completedAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -889,13 +1000,23 @@ export const getQuizResults = async (req, res) => {
     const allResults = await QuizResult.find({ userId: req.user._id });
     const stats = {
       totalQuizzes: allResults.length,
-      averageScore: allResults.length > 0 
-        ? Math.round(allResults.reduce((sum, result) => sum + result.score.percentage, 0) / allResults.length)
-        : 0,
-      totalTimeSpent: allResults.reduce((sum, result) => sum + result.timeSpent, 0),
-      bestScore: allResults.length > 0 
-        ? Math.max(...allResults.map(result => result.score.percentage))
-        : 0
+      averageScore:
+        allResults.length > 0
+          ? Math.round(
+              allResults.reduce(
+                (sum, result) => sum + result.score.percentage,
+                0
+              ) / allResults.length
+            )
+          : 0,
+      totalTimeSpent: allResults.reduce(
+        (sum, result) => sum + result.timeSpent,
+        0
+      ),
+      bestScore:
+        allResults.length > 0
+          ? Math.max(...allResults.map((result) => result.score.percentage))
+          : 0,
     };
 
     res.json({
@@ -905,15 +1026,77 @@ export const getQuizResults = async (req, res) => {
       pagination: {
         current: page,
         total: Math.ceil(total / limit),
-        count: total
-      }
+        count: total,
+      },
     });
-
   } catch (err) {
     console.error("Get quiz results error:", err);
-    res.status(500).json({ 
-      success: false, 
-      message: "Error fetching quiz results: " + err.message 
+    res.status(500).json({
+      success: false,
+      message: "Error fetching quiz results: " + err.message,
     });
+  }
+};
+
+// --- Updated Chat with Document (Python RAG Integration) ---
+export const chatWithDocument = async (req, res) => {
+  try {
+    const { documentId, question, history } = req.body;
+    // Allow flexibility if frontend sends 'message' instead of 'question'
+    const query = question || req.body.message;
+
+    // 1. Check if we have the required data
+    if (!documentId || !query) {
+      return res
+        .status(400)
+        .json({ message: "Document ID and Question/Message are required" });
+    }
+
+    // 2. Find the document in MongoDB to ensure ownership
+    // We do NOT need to extract text here anymore, just validate the ID belongs to the user
+    const document = await Document.findOne({
+      _id: documentId,
+      userId: req.user._id,
+    });
+
+    if (!document) {
+      return res
+        .status(404)
+        .json({ message: "Document not found or unauthorized" });
+    }
+
+    // 3. Send the ID + Question to your Python Microservice
+    // The Python service will use the ID to retrieve relevant vectors from its store
+    const pythonResponse = await fetch("http://127.0.0.1:8000/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        document_id: documentId, // Python uses this to find the vectors
+        question: query,
+        history: history || [],
+      }),
+    });
+
+    // 4. Check if Python crashed
+    if (!pythonResponse.ok) {
+      const errorText = await pythonResponse.text();
+      console.error("Python Service Error:", errorText);
+      throw new Error(
+        "The AI service is having trouble processing this request."
+      );
+    }
+
+    // 5. Return the answer to the Frontend
+    const data = await pythonResponse.json();
+
+    // Support both 'answer' and 'reply' formats depending on Python output
+    res.json({
+      success: true,
+      answer: data.answer || data.reply,
+      reply: data.reply || data.answer, // ensuring frontend compatibility
+    });
+  } catch (err) {
+    console.error("Chat Bridge Error:", err);
+    res.status(500).json({ message: "Server error during chat." });
   }
 };

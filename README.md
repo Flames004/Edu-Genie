@@ -4,7 +4,8 @@
 
 ## ✨ Overview
 
-EduGenie is a modern, full-stack web application that revolutionizes the way students and professionals interact with educational content. Upload any document (PDF, DOCX, TXT) and let our AI-powered system generate summaries, quizzes, flashcards, and Q&A sessions to enhance your learning experience.
+* EduGenie is a modern, full-stack web application that revolutionizes the way students and professionals interact with educational content. Upload any document (PDF, DOCX, TXT) and let our AI-powered system generate summaries, quizzes, flashcards, and Q&A sessions to enhance your learning experience.
+* EduGenie’s RAG feature allows **context-aware chatting with your documents** by chunking files, storing them as vector embeddings, and retrieving the most relevant sections to generate accurate, content-grounded AI responses.
 
 ### 🎯 Key Features
 
@@ -15,6 +16,7 @@ EduGenie is a modern, full-stack web application that revolutionizes the way stu
 - **🌗 Light/Dark Mode** - Seamless theme toggle across all pages and components
 - **📱 Responsive Design** - Beautiful UI that works on all devices
 - **⚡ Real-time Processing** - Fast document analysis with progress tracking
+- 🧠 Semantic Search (RAG) - Chat with your documents using advanced vector embeddings and a dedicated Python microservice.
 
 ---
 
@@ -46,7 +48,15 @@ backend/
 ├── utils/                 # Helper functions
 └── config/                # Database configuration
 ```
+### AI Service (Python + FastAPI) 
+```
+Handles vector embedding, semantic search, and LLM interaction.
 
+ai_service/
+├── main.py                 # FastAPI entry point & endpoints
+├── requirements.txt        # Python dependencies
+└── .env                    # AI-specific configuration
+```
 ---
 
 ## 🛠️ Tech Stack
@@ -77,6 +87,14 @@ backend/
 - **Git Hooks**: Husky (planned)
 - **Deployment**: Vercel (frontend), Railway (backend)
 
+### AI Microservice
+
+- **Runtime**: Python 3.9+
+- **Framework**: FastAPI
+- **AI Orchestration**: LangChain
+- **LLM**: Google Gemini 1.5 Flash / Gemini Pro
+- **Vector Database**: MongoDB Atlas Vector Search
+
 ---
 
 ## 🚀 Installation
@@ -84,7 +102,8 @@ backend/
 ### Prerequisites
 - Node.js 18 or higher
 - npm or yarn
-- MongoDB Atlas account
+- Python 3.9 or higher
+- MongoDB Atlas account (with Vector Search enabled)
 - Google Gemini API key
 
 ### 1. Clone the Repository
@@ -121,8 +140,21 @@ echo "NEXT_PUBLIC_API_BASE_URL=http://localhost:5000/api" > .env.local
 # Start the development server
 npm run dev
 ```
+### 4. AI Service Setup
+```bash
+cd ai_service
+# Create virtual environment
+python -m venv venv
+# Activate it (Windows: .\venv\Scripts\activate | Mac/Linux: source venv/bin/activate)
 
-### 4. Access the Application
+pip install -r requirements.txt
+
+# Create .env file
+# Required vars: GEMINI_API_KEY, MONGO_URI
+
+uvicorn main:app --reload --port 8000
+```
+### 5. Access the Application
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:5000/api
 
@@ -154,8 +186,13 @@ POST /api/study/quiz/:id        # Generate quiz
 POST /api/study/flashcards/:id  # Generate flashcards
 POST /api/study/questions/:id   # Generate Q&A
 ```
-
----
+### RAG & AI Analysis (Powered by Python Service)
+```http
+POST /ingest         # Chunk & Embed document (Internal)
+POST /chat           # Context-aware chat with document (Internal)
+POST /api/study/analyze/:id     # Generate custom analysis
+POST /api/study/quiz/:id        # Generate quiz
+```
 
 ## 🎨 Screenshots
 
@@ -174,6 +211,8 @@ POST /api/study/questions/:id   # Generate Q&A
 ### Dark Mode
 ![Dark Mode](/assets/dark_mode.png)
 
+### Chat UI
+![Chat UI](/assets/ai_feature_photo_3.png).
 </div>
 
 ---
