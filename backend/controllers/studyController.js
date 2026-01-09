@@ -1069,7 +1069,7 @@ export const chatWithDocument = async (req, res) => {
 
     // 3. Send the ID + Question to your Python Microservice
     // The Python service will use the ID to retrieve relevant vectors from its store
-    const pythonResponse = await fetch("http://127.0.0.1:8000/chat", {
+    const pythonResponse = await fetch(`${AI_SERVICE_URL}/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
